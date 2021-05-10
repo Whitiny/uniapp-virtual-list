@@ -31,7 +31,9 @@
 			}
 		},
 		onLoad() {
-
+			setTimeout(() => {
+				
+			})
 		},
 		methods: {
 			onScroll: function(e) {

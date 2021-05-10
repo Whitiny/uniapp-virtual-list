@@ -16,6 +16,12 @@
 
 <script>
 	import itemWrapper from '../item-wrapper/item-wrapper.vue';
+	
+	import Virtual from './virtual.js';
+	
+	const EVENT_TYPE = {
+		ITEM_RISE: 'ITEM_RISE'
+	}
 
 	export default {
 		components: {
@@ -38,23 +44,21 @@
 		},
 		computed: {
 			visibleList() {
-				let last = this.dataSources.length - 1;
-				if (last < this.range.end) this.range.end = last;
-
-				let {
-					start,
-					end
-				} = this.range;
-				return this.dataSources.slice(start, end);
+				return this.dataSources.slice(this.range.start, this.range.end);
 			}
 		},
 		data() {
 			return {
 				range: {
 					start: 0,
-					end: this.keeps - 1
+					end: Math.min(this.keeps - 1, this.dataSources.length - 1)
 				},
 			}
+		},
+		created:function(){
+			this.installVirtual();
+			
+			this.$on(EVENT_TYPE.ITEM_RISE, this.onItemRise);
 		},
 		mounted: function() {
 			// uni.createIntersectionObserver(this).relativeToViewport({top: -100, bottom: -500}).observe(".front-observer", (res) => {
@@ -65,18 +69,18 @@
 			// 	console.log('behind', res);
 			// });
 
-			// setTimeout(( ) => {
-			// 	this.range.start = 30
-			// }, 3000)
 		},
 		beforeDestroy: function() {
-			// this.virtual = 
+			this.virtual.destory();
 		},
 		methods: {
 			installVirtual: function() {
-
+				this.virtual = new Virtual();
 			},
-			getUniqueIdFromDataSources: function() {
+			onItemRise: function(uid, size) {
+				this.virtual.saveSize(uid, size);
+			},
+			getUidFromDataSources: function() {
 				return this.dataSources.map((item) => item[this.uidKey]);
 			},
 		},

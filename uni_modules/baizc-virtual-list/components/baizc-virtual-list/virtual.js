@@ -1,4 +1,11 @@
-export  default class Virtual {
+
+const CALC_TYPE = {
+	INIT: 'INIT',
+	FIXED: 'FIXED',
+	DYNAMIC: 'DYNAMIC'
+}
+
+export default class Virtual {
 	constructor(param) {
 	    this.init(param)
 	}
@@ -7,5 +14,9 @@ export  default class Virtual {
 		this.para = param;
 		
 		this.size = new Map();
+	}
+	
+	saveSize() {
+		
 	}
 }
