@@ -1,14 +1,18 @@
 import genUid from './gen-unique-id.js';
 import news from './news.js';
 
-const getMockNews = function(num = 20) {
-	let rand,
-		max = news.length,
+const getMockNews = function(num = 20, count = 1) {
+	let i,
+		rand,
+		max = news.length - 1,
 		result = new Array(num).fill('').map( () => {
-			rand = Math.round(Math.random() * max);
+			rand = Math.random();
+			i = Math.round(Math.random() * max);
 			return {
-				...news[rand],
-				id: genUid()
+				...news[i],
+				id: genUid(),
+				no: count++,
+				type: 1 > 0.5? 'small' : 'medium'
 			}
 		});
 		
@@ -16,5 +20,5 @@ const getMockNews = function(num = 20) {
 }
 
 export {
-	getMockNews as default
+	getMockNews
 }

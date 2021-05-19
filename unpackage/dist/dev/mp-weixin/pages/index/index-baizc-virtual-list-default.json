@@ -1,9 +1,0 @@
-{
-  "component": true,
-  "usingComponents": {
-    "index-baizc-virtual-list-default": "/pages/index/index-baizc-virtual-list-default",
-    "mescroll-uni": "/uni_modules/mescroll-uni/components/mescroll-uni/mescroll-uni",
-    "baizc-virtual-list": "/uni_modules/baizc-virtual-list/components/baizc-virtual-list/baizc-virtual-list",
-    "news-item": "/components/news-item/news-item"
-  }
-}

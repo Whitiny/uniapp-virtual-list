@@ -1,1 +1,0 @@
-<view id="{{uid}}" class="_div"><slot></slot></view>

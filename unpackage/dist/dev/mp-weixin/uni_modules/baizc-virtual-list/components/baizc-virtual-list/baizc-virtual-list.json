@@ -1,9 +1,0 @@
-{
-  "componentGenerics": {
-    "scoped-slots-default": true
-  },
-  "component": true,
-  "usingComponents": {
-    "item-wrapper": "/uni_modules/baizc-virtual-list/components/item-wrapper/item-wrapper"
-  }
-}
