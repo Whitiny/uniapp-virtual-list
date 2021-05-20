@@ -1,21 +1,18 @@
 <template>
-	<div class="list" id="list">
+	<div :class="['list', 'scroll-touch', isVertical ? 'vertical' : 'horizontal']" id="list">
 
 		<view class="front-observer" :style="{height: frontObserverSize}"></view>
 
 		<slot></slot>
 
 		<view class="behind-observer" :style="{height: behindObserverSize}"></view>
-
+		
+		<view @tap="testData" style="position: fixed; top: 80px; right: 30px; z-index: 800;" class="bg-white">测试</view>
 	</div>
 </template>
 
 <script>
 	import Virtual from './virtual.js';
-
-	const EVENT_TYPE = {
-		ITEM_RISE: 'ITEM_RISE'
-	}
 
 	const OBSERVER_STATUS = {
 		NONE: 'NONE',
@@ -34,7 +31,7 @@
 					bottom: 0
 				})
 			},
-			dataSources: {
+			uniqueIds: {
 				type: Array,
 				default: () => ([])
 			},
@@ -49,9 +46,16 @@
 			estimateSize: {
 				type: Number,
 				default: 80
+			},
+			direction: {
+				type: String,
+				default: 'vertical'
 			}
 		},
 		computed: {
+			isVertical() {
+				return this.direction === 'vertical';
+			},
 			bufferSize() {
 				return Math.round(this.keeps / 5) * this.estimateSize
 			},
@@ -77,15 +81,12 @@
 			this.observerStatus = OBSERVER_STATUS.NONE;
 
 			this.installVirtual();
-
-			this.$on(EVENT_TYPE.ITEM_RISE, this.onItemRise);
 		},
 		mounted: function() {
 			this.listQuery = uni.createSelectorQuery().in(this).select('#list');
 			this.installObserver();
 		},
 		beforeDestroy: function() {
-			this.$off(EVENT_TYPE.ITEM_RISE);
 			this.destoryObserver();
 			this.virtual.destory();
 		},
@@ -95,50 +96,75 @@
 					keeps: this.keeps,
 					buffer: Math.round(this.keeps / 3),
 					estimateSize: this.estimateSize,
-					uniqueIds: this.getUidFromDataSources()
+					uniqueIds: this.uniqueIds
 				}, this.onRangeChange);
+			},
+			testData: function() {
+				this.getListRect().then(res => {
+					console.warn(res)
+				})
+			},
+
+			getListRect: function() {
+				return new Promise((resolve, reject) => {
+					if (!this.listQuery) reject('query select 未创建');
+
+					this.listQuery.fields({
+						rect: true
+					}, (res) => {
+						let offset = this.isVertical ? res.top : res.left;
+
+						resolve(Math.abs(offset));
+					}).exec()
+				});
 			},
 
 			checkObserver: function() {
-				if (!this.listQuery) return;
-				this.listQuery.fields({rect: true}, (res) => {
-					let offset = Math.trunc(-res.top);
-					this.virtual.handleOffset(offset);
-				}).exec()
+				let dir = this.observerStatus;
+
+				this.getListRect().then((offset) => {
+
+					if (dir === OBSERVER_STATUS.FRONT) {
+						this.virtual.handleFront(offset);
+					} else if (dir === OBSERVER_STATUS.BEHIND) {
+						this.virtual.handleBehind(offset);
+					}
+
+				})
 			},
 
 			installObserver: function() {
 
-				this.frontObserver = this.createObserver(".front-observer", (res) => {
-					// console.log('front-observer', res);
-					if (this.dataSources.length < this.keeps) return;
+				// this.frontObserver = this.createObserver(".front-observer", (res) => {
+				// 	// console.log('front observer', res);
+				// 	if (this.range.start === 0) return;
 
-					if ( res.intersectionRatio > 0 ) {
-						// if (this.range.start !== 0) 
-						this.observerStatus = OBSERVER_STATUS.FRONT;
+				// 	if (res.intersectionRatio > 0 || (res.intersectionRect.top > 0 && res.intersectionRect
+				// 			.top >= res.relativeRect.top)) {
+				// 		this.observerStatus = OBSERVER_STATUS.FRONT;
 
-						// this.virtual.handleFront();
-						this.checkObserver('front')
-					} else {
-						this.observerStatus = OBSERVER_STATUS.NONE;
-					}
-				});
+				// 		this.checkObserver();
+
+				// 	} else {
+				// 		this.observerStatus = OBSERVER_STATUS.NONE;
+				// 	}
+				// });
 
 				this.behindObserver = this.createObserver(".behind-observer", (res) => {
-					// console.log('behind-observer', res);
-					if (this.dataSources.length < this.keeps) return;
+					// console.log('behind observer', res);
+					if (this.range.end === this.uniqueIds.length - 1) return;
 
-					if ( Math.trunc(res.intersectionRect.bottom) === Math.trunc(res.relativeRect.bottom)) {
-						// if (this.range.end !== this.dataSources.length - 1) 
+					if (res.intersectionRatio > 0 || (res.intersectionRect.bottom > 0 && res.intersectionRect
+							.bottom <= res.relativeRect.bottom)) {
 						this.observerStatus = OBSERVER_STATUS.BEHIND;
 
-						// this.virtual.handleBehind();
-						this.checkObserver('behind')
+						this.checkObserver();
 					} else {
 						this.observerStatus = OBSERVER_STATUS.NONE;
 					}
 				});
 			},
+
 			createObserver: function(selector, callback) {
 				let observer = uni.createIntersectionObserver(this);
 
@@ -154,6 +180,7 @@
 				delete this.frontObserver;
 				delete this.behindObserver;
 			},
+
 			disconnectObserver: function(observer) {
 				if (observer && typeof observer.disconnect === 'function') observer.disconnect();
 			},
@@ -164,20 +191,14 @@
 
 				setTimeout(() => {
 					if (this.observerStatus !== OBSERVER_STATUS.NONE && this.range.start !== 0 && this.range
-						.end !== this.dataSources.length - 1) {
-						// console.log('检查', this.observerStatus);
+						.end !== this.uniqueIds.length - 1) {
 						this.checkObserver();
-					}else {
-						// console.log('不检查', this.observerStatus);
 					}
 				}, 300)
 			},
 
 			saveSize: function(uid, size) {
 				this.virtual.saveSize(uid, size);
-			},
-			getUidFromDataSources: function() {
-				return this.dataSources.map((item) => item[this.uidKey]);
 			},
 		},
 	}
@@ -194,17 +215,24 @@
 		min-height: 1px;
 
 		position: absolute;
+		opacity: .3;
 	}
 
-	.front-observer {
+	.vertical .front-observer {
 		top: 0;
 		/* background-color: #1CBBB4; */
-		opacity: 0.3;
 	}
 
-	.behind-observer {
+	.vertical .behind-observer {
 		bottom: 0;
 		/* background-color: #4CD964; */
-		opacity: 0.3;
+	}
+
+	.horizontal .front-observer {
+		left: 0;
+	}
+
+	.horizontal .behind-observer {
+		right: 0;
 	}
 </style>
