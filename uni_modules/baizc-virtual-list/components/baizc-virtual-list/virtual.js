@@ -13,12 +13,16 @@ export default class Virtual {
 		this.param = param;
 		this.callUpdate = callUpdate;
 
-		this.sizes = new Map();
-		this.firstRangeTotalSize = 0;
-		this.firstRangeAverageSize = 0;
-		this.lastCalcIndex = 0;
-		this.fixedSizeValue = 0;
 		this.calcType = CALC_TYPE.INIT;
+		
+		this.sizes = new Map(); // 单项缓存
+		this.sizeAccCache = []; // 累加缓存
+		
+		this.fixedSizeValue = 0; // 固定单项 size
+		this.firstRangeTotalSize = 0;
+		this.firstRangeAverageSize = 0; // 首屏估算平均 size
+		
+		this.lastCalcIndex = 0; // 经过累加计算的最后一项索引
 		
 		this.windowHeight = 0;
 		
@@ -49,7 +53,7 @@ export default class Virtual {
 	}
 
 	getIndex(offset) {
-		// console.log(offset);
+
 		if (!offset) return 0;
 
 		let i, size, offsetAcc = 0;
@@ -57,33 +61,37 @@ export default class Virtual {
 		for (i = 0; i < this.sizes.size; i++) {
 			size = this.sizes.get(this.param.uniqueIds[i]);
 			offsetAcc += (typeof size === 'number' ? size : this.getEstimateSize());
-			// console.log(offsetAcc, size);
+
 			if (offsetAcc >= offset) return i;
 		}
 
 		while (offsetAcc < offset) {
 			i++;
 			offsetAcc += this.getEstimateSize();
-			// console.log(offsetAcc, i);
 		}
+		
 		return i;
 	}
 
 	getIndexOffset(giveIndex) {
 		if (!giveIndex) return 0;
+		
+		// let last = this.getLastIndex();
+		// if(giveIndex > last) giveIndex = last;
+		
+		
 
 		let offset = 0,
 			size, i;
-		
-		let test = [];
+		let test = []
 		for (i = 0; i < giveIndex; i++) {
 			size = this.sizes.get(this.param.uniqueIds[i]);
 			if(typeof size !== 'number') size  = this.getEstimateSize();
 			offset += size;
+			// this.sizeAccCache.push(size);
 			test.push(size)
 		}
-		// console.warn(offset, this.sizes, test)
-
+		console.log(giveIndex, offset, test);
 		this.lastCalcIndex = Math.max(this.lastCalcIndex, giveIndex);
 		this.lastCalcIndex = Math.min(this.lastCalcIndex, this.getLastIndex());
 
@@ -91,7 +99,6 @@ export default class Virtual {
 	}
 
 	getPadFront() {
-		// console.log('固定高度~~~~~~~~~~~~~~~~~');
 		if (this.isFixedType()) {
 			return this.fixedSizeValue * this.range.start;
 		} else {
@@ -118,8 +125,14 @@ export default class Virtual {
 
 	saveSize(uid, size) {
 		if(size <= 0) return; // 快速滚动时，未能获取到真实高度，可能出现返回 0 的情况，应排除
+		// #ifdef MP-WEIXIN
+		// size = Math.round(size)
+		// #endif
+		// #ifndef MP-WEIXIN
+		// size = parseFloat(size.toFixed(2));
+		// #endif
+		size = parseFloat(size.toFixed(2));
 		this.sizes.set(uid, size);
-		// console.log('item resize', uid, size);
 
 		// 首先假定列表每一项尺寸（高度|宽度）是一样的
 		// 若之后有列表项与之前项尺寸不一致，标记为动态尺寸列表
@@ -127,7 +140,6 @@ export default class Virtual {
 			this.fixedSizeValue = size;
 			this.calcType = CALC_TYPE.FIXED;
 		} else if (this.calcType === CALC_TYPE.FIXED && size !== this.fixedSizeValue) {
-			// console.warn('高度异常', uid, size)
 			this.calcType = CALC_TYPE.DYNAMIC;
 			delete this.fixedSizeValue;
 		}
@@ -148,33 +160,25 @@ export default class Virtual {
 
 		return Math.min(theoryEnd, this.getLastIndex());
 	}
-
-	handleOffset(offset) {
-		if(this.lastCalcOffset === offset) return;
+	
+	handleOffset(offset, direction) {
+		if (this.lastCalcOffset === offset) return;
 
 		this.lastCalcOffset = offset;
 		
 		let index = this.getIndex(offset); // 当前视口顶部项的下标
 
-		const start = Math.max(index - this.param.buffer, 0);
-		// console.log('********', start);
+		const start = direction === 'front' ? Math.max(index - (2 * this.param.buffer), 0) : Math.max(index - this.param.buffer, 0);
 
-		this.checkRange(start, this.getEndByStart(start));
-
-	}
-
-	handleFront() {
-		if (this.padFront <= 0) return; // 往前无数据
-
-		const start = Math.max(this.range.start - this.param.buffer, 0);
 		this.checkRange(start, this.getEndByStart(start));
 	}
 
-	handleBehind() {
-		if (this.padBehind <= 0) return; // 往后无数据
+	handleFront(offset) {
+		this.handleOffset(offset + this.windowHeight, 'front');
+	}
 
-		const start = Math.min(this.range.start + this.param.buffer, this.getLastIndex());
-		this.checkRange(start, this.getEndByStart(start));
+	handleBehind(offset) {
+		this.handleOffset(offset, 'behind');
 	}
 
 	checkRange(start, end) {

@@ -8,50 +8,36 @@
 	export default {
 		name: 'virtual-list-item',
 		props: {
-			tag: {
-				type: String,
-				default: ''
-			},
 			uid: {
 				type: [Number, String],
 				default: 'uid'
 			},
-			resizeEvent: {
+			direction: {
 				type: String,
-				default: 'ITEM_RISE'
-			},
-			queryOption: {
-				type: Object,
-				default: () => ({
-					size: true
-				})
+				default: 'vertical'
+			}
+		},
+		computed: {
+			isVertical() {
+				return this.direction === 'vertical';
 			}
 		},
 		mounted: function() {
-			// console.log('mounted', this.uid)
 			this.dispatchSizeChange();
 		},
 		updated: function() {
-			// console.log('updated', this.uid)
 			this.dispatchSizeChange();
 		},
 		methods: {
 			dispatchSizeChange: async function() {
-				try {
-					let query = uni.createSelectorQuery().in(this);
+				let query = uni.createSelectorQuery().in(this).select(`#${this.uid}`);
 
-					query.select(`#${this.uid}`).fields(this.queryOption, (res) => this.$emit("size", this.uid, res
-						.height)).exec()
-				} catch (e) {
-					console.error('catch query', e)
-				}
-			},
-			getCurrentSize: function() {
-				let query = uni.createSelectorQuery().in(this);
-
-				return new Promise((resolve, reject) => {
-					query.select(`#${this.uid}`).fields(this.queryOption, (res) => resolve(res.height)).exec()
-				});
+				query.fields({
+					size: true
+				}, (res) => {
+					let size = this.isVertical ? res.height : res.width;
+					this.$emit("size", this.uid, size);
+				}).exec()
 			}
 		},
 	}
