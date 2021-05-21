@@ -1,13 +1,12 @@
 <template>
-	<div :class="['list', 'scroll-touch', isVertical ? 'vertical' : 'horizontal']" id="list">
+	<div :class="['list', isVertical ? 'vertical' : 'horizontal']" id="list">
 
 		<view class="front-observer" :style="{height: frontObserverSize}"></view>
 
 		<slot></slot>
 
 		<view class="behind-observer" :style="{height: behindObserverSize}"></view>
-		
-		<view @tap="testData" style="position: fixed; top: 80px; right: 30px; z-index: 800;" class="bg-white">测试</view>
+
 	</div>
 </template>
 
@@ -99,11 +98,6 @@
 					uniqueIds: this.uniqueIds
 				}, this.onRangeChange);
 			},
-			testData: function() {
-				this.getListRect().then(res => {
-					console.warn(res)
-				})
-			},
 
 			getListRect: function() {
 				return new Promise((resolve, reject) => {
@@ -135,20 +129,20 @@
 
 			installObserver: function() {
 
-				// this.frontObserver = this.createObserver(".front-observer", (res) => {
-				// 	// console.log('front observer', res);
-				// 	if (this.range.start === 0) return;
+				this.frontObserver = this.createObserver(".front-observer", (res) => {
+					// console.log('front observer', res);
+					if (this.range.start === 0) return;
 
-				// 	if (res.intersectionRatio > 0 || (res.intersectionRect.top > 0 && res.intersectionRect
-				// 			.top >= res.relativeRect.top)) {
-				// 		this.observerStatus = OBSERVER_STATUS.FRONT;
+					if (res.intersectionRatio > 0 || (res.intersectionRect.top > 0 && res.intersectionRect
+							.top >= res.relativeRect.top)) {
+						this.observerStatus = OBSERVER_STATUS.FRONT;
 
-				// 		this.checkObserver();
+						this.checkObserver();
 
-				// 	} else {
-				// 		this.observerStatus = OBSERVER_STATUS.NONE;
-				// 	}
-				// });
+					} else {
+						this.observerStatus = OBSERVER_STATUS.NONE;
+					}
+				});
 
 				this.behindObserver = this.createObserver(".behind-observer", (res) => {
 					// console.log('behind observer', res);

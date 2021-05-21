@@ -16,4 +16,7 @@
 	@import "colorui/main.css";
 	/*每个页面公共css */
 	
+	scroll-view::-webkit-scrollbar {
+		display: block !important;
+	}
 </style>

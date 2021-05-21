@@ -1,12 +1,12 @@
 <template>
 	<view class="content">
-		<mescroll-uni class="" ref="mescrollRef" @init="mescrollInit" @down="downCallback" @up="upCallback">
+		<!-- <mescroll-uni class="" ref="mescrollRef" @init="mescrollInit" @down="downCallback" @up="upCallback"> -->
 		<baizc-virtual-list ref="vsl" :uniqueIds="uniqueIds" @change="onRangeChange">
 			<view class="" :style="{padding: `${range.padFront}px 0 ${range.padBehind}px`}">
 
 				<virtual-list-item v-for="item in visibleList" :uid="item.id" :key="item.id" @size="onEmitSize">
 
-					<view v-if="item.type === 'small'" style="padding: 7px 30rpx; height: 107px;">
+					<view v-if="item.type === 'small'" style="padding: 7px 30rpx;">
 						<view class="bg-white flex align-center padding" style="border-radius: 6px;">
 							<image :src="item.image" mode="aspectFill" class="margin-right-sm"
 								style="width: 70px; height: 50px; flex: none;"></image>
@@ -20,7 +20,7 @@
 						</view>
 					</view>
 
-					<view v-else style="padding: 7px 30rpx; height: 177px;">
+					<view v-else style="padding: 7px 30rpx;">
 						<view class="bg-white solid-bottom padding" style="border-radius: 6px;">
 							<view class="" style="display: flex; flex-direction: column;">
 								<view class="text-cut-2"
@@ -44,7 +44,7 @@
 
 			</view>
 		</baizc-virtual-list>
-		</mescroll-uni>
+		<!-- </mescroll-uni> -->
 	</view>
 </template>
 
@@ -90,11 +90,7 @@
 			}
 		},
 		onLoad() {},
-		onReady() {
-			setTimeout(() => {
-				this.mescroll.scrollTo(400000)
-			},2000)
-		},
+		onReady() {},
 		methods: {
 			onRangeChange: function(range) {
 				Object.assign(this.range, range)

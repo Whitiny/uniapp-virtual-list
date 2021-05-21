@@ -16,7 +16,7 @@ export default class Virtual {
 		this.calcType = CALC_TYPE.INIT;
 		
 		this.sizes = new Map(); // 单项缓存
-		this.sizeAccCache = [0]; // 累加缓存
+		this.sizeAccCache = []; // 累加缓存
 		
 		this.fixedSizeValue = 0; // 固定单项 size
 		this.firstRangeTotalSize = 0;
@@ -57,23 +57,19 @@ export default class Virtual {
 		if (!offset) return 0;
 
 		let i, size, offsetAcc = 0;
-		let test = [0];
 
 		for (i = 0; i < this.sizes.size; i++) {
 			size = this.sizes.get(this.param.uniqueIds[i]);
-			if(typeof size !== 'number') size  = this.getEstimateSize();
-			offsetAcc += size;
-			test[i + 1] = test[i] + size;
-			
+			offsetAcc += (typeof size === 'number' ? size : this.getEstimateSize());
+
 			if (offsetAcc >= offset) return i;
 		}
 
 		while (offsetAcc < offset) {
-			test[i + 1] = test[i] + size;
-			offsetAcc += this.getEstimateSize();
 			i++;
+			offsetAcc += this.getEstimateSize();
 		}
-		console.warn('calc index', test)
+		
 		return i;
 	}
 
@@ -83,7 +79,7 @@ export default class Virtual {
 		// let last = this.getLastIndex();
 		// if(giveIndex > last) giveIndex = last;
 		
-		let lastCacheIndex = this.sizeAccCache.length - 1;
+		
 
 		let offset = 0,
 			size, i;
@@ -92,11 +88,10 @@ export default class Virtual {
 			size = this.sizes.get(this.param.uniqueIds[i]);
 			if(typeof size !== 'number') size  = this.getEstimateSize();
 			offset += size;
-			if(i >= lastCacheIndex) this.sizeAccCache[i + 1] = this.sizeAccCache[i] + size;
+			// this.sizeAccCache.push(size);
 			test.push(size)
 		}
-		console.log(giveIndex, this.lastCalcOffset, offset, test);
-		console.log('cahce ', this.sizeAccCache);
+		console.log(giveIndex, offset, test);
 		this.lastCalcIndex = Math.max(this.lastCalcIndex, giveIndex);
 		this.lastCalcIndex = Math.min(this.lastCalcIndex, this.getLastIndex());
 
@@ -171,10 +166,10 @@ export default class Virtual {
 
 		this.lastCalcOffset = offset;
 		
-		let index = this.getIndex(offset); 
-const start = index;
-		// const start = direction === 'front' ? Math.max(index - (2 * this.param.buffer), 0) : Math.max(index - this.param.buffer, 0);
-		
+		let index = this.getIndex(offset); // 当前视口顶部项的下标
+
+		const start = direction === 'front' ? Math.max(index - (2 * this.param.buffer), 0) : Math.max(index - this.param.buffer, 0);
+
 		this.checkRange(start, this.getEndByStart(start));
 	}
 
