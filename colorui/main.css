@@ -1944,9 +1944,9 @@ button.cuIcon.lg {
 	white-space: nowrap;
 }
 
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
 	display: none;
-}
+} */
 
 .nav .cu-item {
 	height: 90upx;

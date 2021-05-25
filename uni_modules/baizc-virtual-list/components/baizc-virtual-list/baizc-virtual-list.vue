@@ -40,7 +40,7 @@
 			},
 			keeps: {
 				type: Number,
-				default: 30
+				default: 15
 			},
 			estimateSize: {
 				type: Number,
@@ -91,11 +91,14 @@
 		},
 		methods: {
 			installVirtual: function() {
+				let sysInfo = uni.getSystemInfoSync();
+
 				this.virtual = new Virtual({
 					keeps: this.keeps,
 					buffer: Math.round(this.keeps / 3),
 					estimateSize: this.estimateSize,
-					uniqueIds: this.uniqueIds
+					uniqueIds: this.uniqueIds,
+					windowSize: this.isVertical ? sysInfo.windowHeight : sysInfo.windowWidth
 				}, this.onRangeChange);
 			},
 
@@ -117,6 +120,7 @@
 				let dir = this.observerStatus;
 
 				this.getListRect().then((offset) => {
+					// console.log('check offset', offset);
 
 					if (dir === OBSERVER_STATUS.FRONT) {
 						this.virtual.handleFront(offset);
@@ -186,13 +190,16 @@
 				setTimeout(() => {
 					if (this.observerStatus !== OBSERVER_STATUS.NONE && this.range.start !== 0 && this.range
 						.end !== this.uniqueIds.length - 1) {
+						// console.log('check scroll over');
 						this.checkObserver();
+					}else {
+						// console.log('no check', this.observerStatus, this.range.start, this.range.end);
 					}
 				}, 300)
 			},
 
-			saveSize: function(uid, size) {
-				this.virtual.saveSize(uid, size);
+			saveSize: function(data) {
+				this.virtual.saveSize(data);
 			},
 		},
 	}
@@ -214,12 +221,12 @@
 
 	.vertical .front-observer {
 		top: 0;
-		/* background-color: #1CBBB4; */
+		background-color: #1CBBB4;
 	}
 
 	.vertical .behind-observer {
 		bottom: 0;
-		/* background-color: #4CD964; */
+		background-color: #4CD964;
 	}
 
 	.horizontal .front-observer {

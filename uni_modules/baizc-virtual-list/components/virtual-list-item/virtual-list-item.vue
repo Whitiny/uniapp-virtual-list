@@ -15,6 +15,14 @@
 			direction: {
 				type: String,
 				default: 'vertical'
+			},
+			number: {
+				type: [Number],
+				default: -1
+			},
+			willRise: {
+				type: Boolean,
+				default: false
 			}
 		},
 		computed: {
@@ -26,7 +34,7 @@
 			this.dispatchSizeChange();
 		},
 		updated: function() {
-			this.dispatchSizeChange();
+			if(this.willRise) this.dispatchSizeChange();
 		},
 		methods: {
 			dispatchSizeChange: async function() {
@@ -36,7 +44,11 @@
 					size: true
 				}, (res) => {
 					let size = this.isVertical ? res.height : res.width;
-					this.$emit("size", this.uid, size);
+					this.$emit("size", {
+						index: this.number,
+						uid: this.uid,
+						size: size
+					});
 				}).exec()
 			}
 		},
