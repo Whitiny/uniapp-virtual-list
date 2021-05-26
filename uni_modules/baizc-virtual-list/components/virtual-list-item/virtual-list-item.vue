@@ -16,7 +16,7 @@
 				type: String,
 				default: 'vertical'
 			},
-			number: {
+			index: {
 				type: [Number],
 				default: -1
 			},
@@ -45,7 +45,7 @@
 				}, (res) => {
 					let size = this.isVertical ? res.height : res.width;
 					this.$emit("size", {
-						index: this.number,
+						index: this.index,
 						uid: this.uid,
 						size: size
 					});

@@ -16,4 +16,11 @@
 	@import "colorui/main.css";
 	/*每个页面公共css */
 	
+	.text-cut-2 {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+	}
 </style>

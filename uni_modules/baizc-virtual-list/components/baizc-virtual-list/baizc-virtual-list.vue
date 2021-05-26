@@ -3,7 +3,7 @@
 
 		<view class="front-observer" :style="{height: frontObserverSize}"></view>
 
-		<slot></slot>
+			<slot></slot>
 
 		<view class="behind-observer" :style="{height: behindObserverSize}"></view>
 
@@ -38,9 +38,13 @@
 				type: String,
 				default: 'id'
 			},
+			indexKey: {
+				type: String,
+				default: 'index'
+			},
 			keeps: {
 				type: Number,
-				default: 15
+				default: 30
 			},
 			estimateSize: {
 				type: Number,
@@ -134,11 +138,10 @@
 			installObserver: function() {
 
 				this.frontObserver = this.createObserver(".front-observer", (res) => {
-					// console.log('front observer', res);
+					console.log('front observer', res);
 					if (this.range.start === 0) return;
 
-					if (res.intersectionRatio > 0 || (res.intersectionRect.top > 0 && res.intersectionRect
-							.top >= res.relativeRect.top)) {
+					if (res.intersectionRatio > 0 || res.intersectionRect.width > 0) {
 						this.observerStatus = OBSERVER_STATUS.FRONT;
 
 						this.checkObserver();
@@ -149,11 +152,10 @@
 				});
 
 				this.behindObserver = this.createObserver(".behind-observer", (res) => {
-					// console.log('behind observer', res);
+					console.log('behind observer', res);
 					if (this.range.end === this.uniqueIds.length - 1) return;
 
-					if (res.intersectionRatio > 0 || (res.intersectionRect.bottom > 0 && res.intersectionRect
-							.bottom <= res.relativeRect.bottom)) {
+					if (res.intersectionRatio > 0 || res.intersectionRect.width > 0) {
 						this.observerStatus = OBSERVER_STATUS.BEHIND;
 
 						this.checkObserver();
@@ -192,7 +194,7 @@
 						.end !== this.uniqueIds.length - 1) {
 						// console.log('check scroll over');
 						this.checkObserver();
-					}else {
+					} else {
 						// console.log('no check', this.observerStatus, this.range.start, this.range.end);
 					}
 				}, 300)
@@ -221,12 +223,12 @@
 
 	.vertical .front-observer {
 		top: 0;
-		background-color: #1CBBB4;
+		/* background-color: #1CBBB4; */
 	}
 
 	.vertical .behind-observer {
 		bottom: 0;
-		background-color: #4CD964;
+		/* background-color: #4CD964; */
 	}
 
 	.horizontal .front-observer {

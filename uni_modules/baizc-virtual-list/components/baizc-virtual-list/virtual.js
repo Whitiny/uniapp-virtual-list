@@ -179,8 +179,8 @@ export default class Virtual {
 	}
 
 	handleFront(offset) {
-		// this.handleOffset(offset + this.param.windowSize, 'front');
-		this.handleOffset(offset, 'front');
+		this.handleOffset(offset + this.param.windowSize, 'front');
+		// this.handleOffset(offset, 'front');
 	}
 
 	handleBehind(offset) {
@@ -196,8 +196,8 @@ export default class Virtual {
 		// 缓存数量，用于最后确定 start 数值时，计算 padFront
 		// 往前滚动 offset 计算以视口底部为准，往前加载 2 个 buffer 数量
 		// 往后滚动 offset 计算以视口顶部为准，往前加载 1 个 buffer 数量
-		// let bufferNum = direction === 'front' ? (2 * this.param.buffer) : this.param.buffer,
-		let bufferNum = this.param.buffer,
+		let bufferNum = direction === 'front' ? (2 * this.param.buffer) : this.param.buffer,
+		// let bufferNum = this.param.buffer,
 			overs = this.getScrollOvers(offset); // 当前视口顶部项的下标
 		console.log('scroll overs', direction, overs, offset);
 		const start = Math.max(overs - bufferNum, 0);
@@ -230,7 +230,7 @@ export default class Virtual {
 		this.range.end = end;
 		this.range.padFront = this.getPadFront();
 		this.range.padBehind = this.getPadBehind();
-		console.log(this.range, this.param.uniqueIds, this.sizes, this.sizeAccCache);
+		// console.log(this.range, this.param.uniqueIds, this.sizes, this.sizeAccCache);
 		this.callUpdate(this.getRange());
 	}
 
