@@ -6,11 +6,40 @@
 
 					<virtual-list-item v-for="item in visibleList" :uid="item.id" :index="item.no" :key="item.id"
 						@size="onEmitSize">
-						
-						<news-item v-if="item.type === 'small'" :image="item.image" :title="item.title" :no="item.no"
-							:passtime="item.passtime"></news-item>
-						<news-item-pic3 v-else :image="item.image" :title="item.title" :no="item.no"
-							:passtime="item.passtime"></news-item-pic3>
+
+						<view v-if="item.type === 'small'" style="padding: 7px 30rpx;">
+							<view class="bg-white flex align-center padding" style="border-radius: 6px;">
+								<image :src="item.image" mode="aspectFill" class="margin-right-sm"
+									style="width: 70px; height: 50px; flex: none;"></image>
+								<view class="" style="display: flex; flex-direction: column;">
+									<view class="text-cut-2"
+										style="margin-bottom: 5px; font-size: 32rpx; font-weight: bold;">
+										{{item.no}}、{{item.title}}
+									</view>
+									<view class="">{{item.passtime}}</view>
+								</view>
+							</view>
+						</view>
+
+						<view v-else style="padding: 7px 30rpx;">
+							<view class="bg-white solid-bottom padding" style="border-radius: 6px;">
+								<view class="" style="display: flex; flex-direction: column;">
+									<view class="text-cut-2"
+										style="margin-bottom: 5px; font-size: 32rpx; font-weight: bold;">
+										{{item.no}}、{{item.title}}
+									</view>
+								</view>
+								<view class="flex align-center flex-between">
+									<image :src="item.image" mode="" class="margin-right-sm"
+										style="width: 70px; height: 65px; flex: 1;"></image>
+									<image :src="item.image" mode="aspectFill" class="margin-right-sm"
+										style="width: 70px; height: 65px; flex: 1;"></image>
+									<image :src="item.image" mode="aspectFill" class=""
+										style="width: 70px; height: 65px; flex: 1;"></image>
+								</view>
+								<view class="margin-top-xs">{{item.passtime}}</view>
+							</view>
+						</view>
 
 					</virtual-list-item>
 
@@ -63,9 +92,17 @@
 		},
 		onLoad() {},
 		onReady() {
-			setTimeout(() => {
-				this.mescroll.scrollTo(20000, 300)
-			}, 3000)
+			uni.createSelectorQuery().in(this).select(`#sdfsd`).fields({
+				size: true
+			}, (res) => {
+				console.log(res);
+				// let size = this.isVertical ? res.height : res.width;
+				// this.$emit("size", {
+				// 	index: this.index,
+				// 	uid: this.uid,
+				// 	size: size
+				// });
+			}).exec()
 		},
 		methods: {
 			onRangeChange: function(range) {

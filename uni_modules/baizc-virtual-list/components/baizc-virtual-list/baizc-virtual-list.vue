@@ -3,7 +3,7 @@
 
 		<view class="front-observer" :style="{height: frontObserverSize}"></view>
 
-			<slot></slot>
+		<slot></slot>
 
 		<view class="behind-observer" :style="{height: behindObserverSize}"></view>
 
@@ -12,6 +12,10 @@
 
 <script>
 	import Virtual from './virtual.js';
+
+	import {
+		throttle
+	} from './util.js';
 
 	const OBSERVER_STATUS = {
 		NONE: 'NONE',
@@ -71,6 +75,7 @@
 		},
 		data() {
 			return {
+				throttleChecker: throttle(this.checkObserver),
 				range: {
 					start: 0,
 					end: 0,
@@ -81,6 +86,9 @@
 		},
 		watch: {},
 		created: function() {
+			// 用于快速滚动导致 observer 越出屏幕时的检测频率控制
+			this.timer = null;
+
 			this.observerStatus = OBSERVER_STATUS.NONE;
 
 			this.installVirtual();
@@ -189,15 +197,11 @@
 				this.$emit('change', range)
 				Object.assign(this.range, range);
 
-				setTimeout(() => {
-					if (this.observerStatus !== OBSERVER_STATUS.NONE && this.range.start !== 0 && this.range
-						.end !== this.uniqueIds.length - 1) {
-						// console.log('check scroll over');
-						this.checkObserver();
-					} else {
-						// console.log('no check', this.observerStatus, this.range.start, this.range.end);
-					}
-				}, 300)
+				if (this.observerStatus !== OBSERVER_STATUS.NONE && this.range.start !== 0 && this.range
+					.end !== this.uniqueIds.length - 1) {
+					// console.log('check scroll over');
+					this.throttleChecker();
+				}
 			},
 
 			saveSize: function(data) {

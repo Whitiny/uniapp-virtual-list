@@ -50,38 +50,38 @@ export default class Virtual {
 			return Math.trunc(offset / this.fixedSizeValue);
 		}
 
-		let i, low, high;
-
-		high = this.cacheIndex + 1;
-
-		// 比较查找次数
-		let t_count = 0;
-
 		// 当前滚动位置，已在缓存中，直接查找
-		if (this.sizeAccCache[high] >= offset) {
-			i = Math.trunc(offset / this.getEstimateSize());
-			// console.log('估计位置', i);
-			if (this.sizeAccCache[i] < offset) {
-				for (; i <= high; i++) {
-					t_count++;
-					if (this.sizeAccCache[i] >= offset) {
-						// console.log('实际位置', i, "查找次数", t_count);
-						return i;
-					}
-				}
-			} else {
-				for (; i >= 0; i--) {
-					t_count++;
-					if (this.sizeAccCache[i] < offset) {
-						// console.log('实际位置', i - 1, "查找次数", t_count);
-						return i - 1;
-					}
-				}
+		if (this.sizeAccCache[this.cacheIndex + 1] >= offset) {
+			return this.findOverInCache(offset);
+		} else {
+			return this.calcOverAccumulate(offset);
+		}
+	}
+
+	findOverInCache(offset) {
+		let middle, middleOffset, low = 0,
+			high = this.cacheIndex + 1;
+
+		while (low <= high) {
+			middle = Math.trunc((low + high) / 2);
+			middleOffset = this.sizeAccCache[middle];
+
+			if (middleOffset === offset) {
+				return middle;
+			} else if (middleOffset < offset) {
+				low = middle + 1;
+			} else if (middleOffset > offset) {
+				high = middle - 1;
 			}
 		}
 
+		return low > 0 ? --low : 0;
+	}
+
+	calcOverAccumulate(offset) {
+
 		// 当前滚动位置未缓存，继续累加计算 offset
-		let size, offsetAcc;
+		let i, size, offsetAcc;
 
 		i = this.cacheIndex + 1;
 		offsetAcc = this.sizeAccCache[i];
@@ -94,7 +94,6 @@ export default class Virtual {
 			this.sizeAccCache[i + 1] = offsetAcc;
 
 			if (offsetAcc >= offset) {
-				// console.log(this.sizeAccCache);
 				this.cacheIndex = i;
 				return i;
 			}
@@ -123,13 +122,11 @@ export default class Virtual {
 
 		let offset = 0,
 			size, i;
-		let test = []
+
 		for (i = 0; i < giveIndex; i++) {
 			size = this.sizes.get(this.param.uniqueIds[i]);
 			if (typeof size !== 'number') size = this.getEstimateSize();
 			offset += size;
-			// this.sizeAccCache.push(size);
-			test.push(size)
 		}
 		// console.log(giveIndex, offset, test);
 		this.hasOverIndex = Math.max(this.hasOverIndex, giveIndex);
@@ -168,10 +165,9 @@ export default class Virtual {
 		// 计算列表项平均尺寸，用于估算未渲染列表项的占位尺寸
 		if (this.calcType === CALC_TYPE.DYNAMIC && this.firstRangeTotalSize !== undefined) {
 			if (this.sizes.size < Math.min(this.param.keeps, this.param.uniqueIds.length)) {
-				// app 端不支持 Array 的 values 方法
+				// app 端不支持 Array 的 values 方法, 改用 解构 和 展开运算符
 				this.firstRangeTotalSize = [...this.sizes].reduce((acc, [uid, val]) => acc + val, 0);
 				this.firstRangeAverageSize = Math.round(this.firstRangeTotalSize / this.sizes.size);
-				console.warn("均值", this.firstRangeAverageSize);
 			} else {
 				delete this.firstRangeTotalSize;
 			}
@@ -197,7 +193,7 @@ export default class Virtual {
 		// 往前滚动 offset 计算以视口底部为准，往前加载 2 个 buffer 数量
 		// 往后滚动 offset 计算以视口顶部为准，往前加载 1 个 buffer 数量
 		let bufferNum = direction === 'front' ? (2 * this.param.buffer) : this.param.buffer,
-		// let bufferNum = this.param.buffer,
+			// let bufferNum = this.param.buffer,
 			overs = this.getScrollOvers(offset); // 当前视口顶部项的下标
 		console.log('scroll overs', direction, overs, offset);
 		const start = Math.max(overs - bufferNum, 0);

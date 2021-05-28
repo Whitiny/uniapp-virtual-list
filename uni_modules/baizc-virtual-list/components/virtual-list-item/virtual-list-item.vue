@@ -34,13 +34,11 @@
 			this.dispatchSizeChange();
 		},
 		updated: function() {
-			if(this.willRise) this.dispatchSizeChange();
+			if (this.willRise) this.dispatchSizeChange();
 		},
 		methods: {
-			dispatchSizeChange: async function() {
-				let query = uni.createSelectorQuery().in(this).select(`#${this.uid}`);
-
-				query.fields({
+			dispatchSizeChange: function() {
+				uni.createSelectorQuery().in(this).select(`#${this.uid}`).fields({
 					size: true
 				}, (res) => {
 					let size = this.isVertical ? res.height : res.width;
