@@ -16,6 +16,10 @@
 	@import "colorui/main.css";
 	/*每个页面公共css */
 	
+	.default-hover {
+		background-color: rgba(238, 238, 238, .1);
+	}
+	
 	.text-cut-2 {
 		overflow: hidden;
 		text-overflow: ellipsis;

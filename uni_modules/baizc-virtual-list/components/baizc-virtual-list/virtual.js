@@ -174,19 +174,38 @@ export default class Virtual {
 		}
 	}
 
-	handleFront(offset) {
-		this.handleOffset(offset + this.param.windowSize, 'front');
-		// this.handleOffset(offset, 'front');
+	updateParam(key, value) {
+		if (this.param && (key in this.param)) {
+			// if uniqueIds change, find out deleted id and remove from size map
+			if (key === 'uniqueIds') {
+				this.sizes.forEach((v, key) => {
+					if (!value.includes(key)) {
+						this.sizes.delete(key)
+					}
+				})
+			}
+			this.param[key] = value
+		}
 	}
 
-	handleBehind(offset) {
+	// handleDataSourcesChange() {
+	// 	this.updateRange(this.range.start, this.getEndByStart(this.range.start))
+	// }
+
+	handleFront(offset, force = false) {
+		offset += this.param.windowSize;
+		// 避免触发频繁导致冗余计算
+		if (this.lastCalcOffset === offset && !force) return;
+		this.handleOffset(offset, 'front');
+	}
+
+	handleBehind(offset, force = false) {
+		// 避免触发频繁导致冗余计算
+		if (this.lastCalcOffset === offset && !force) return;
 		this.handleOffset(offset, 'behind');
 	}
 
 	handleOffset(offset, direction) {
-		// 避免触发频繁导致冗余计算
-		if (this.lastCalcOffset === offset) return;
-
 		this.lastCalcOffset = offset;
 
 		// 缓存数量，用于最后确定 start 数值时，计算 padFront
@@ -195,7 +214,7 @@ export default class Virtual {
 		let bufferNum = direction === 'front' ? (2 * this.param.buffer) : this.param.buffer,
 			// let bufferNum = this.param.buffer,
 			overs = this.getScrollOvers(offset); // 当前视口顶部项的下标
-		console.log('scroll overs', direction, overs, offset);
+
 		const start = Math.max(overs - bufferNum, 0);
 
 		this.checkRange(start, this.getEndByStart(start));
@@ -217,8 +236,8 @@ export default class Virtual {
 		} else if (end - start + 1 < keeps) {
 			start = end - keeps + 1;
 		}
-
-		if (start !== this.range.start) this.updateRange(start, end);
+		console.log(start, end);
+		if (start !== this.range.start || end !== this.range.end) this.updateRange(start, end);
 	}
 
 	updateRange(start, end) {

@@ -84,7 +84,13 @@
 				},
 			}
 		},
-		watch: {},
+		watch: {
+			'uniqueIds.length' () {
+				console.log('watch', this.observerStatus);
+				this.virtual.updateParam('uniqueIds', this.uniqueIds)
+				this.checkObserver(true);
+			}
+		},
 		created: function() {
 			// 用于快速滚动导致 observer 越出屏幕时的检测频率控制
 			this.timer = null;
@@ -112,6 +118,7 @@
 					uniqueIds: this.uniqueIds,
 					windowSize: this.isVertical ? sysInfo.windowHeight : sysInfo.windowWidth
 				}, this.onRangeChange);
+				
 			},
 
 			getListRect: function() {
@@ -128,25 +135,24 @@
 				});
 			},
 
-			checkObserver: function() {
+			checkObserver: function(force) {
 				let dir = this.observerStatus;
 
 				this.getListRect().then((offset) => {
-					// console.log('check offset', offset);
-
 					if (dir === OBSERVER_STATUS.FRONT) {
-						this.virtual.handleFront(offset);
+						this.virtual.handleFront(offset, force);
 					} else if (dir === OBSERVER_STATUS.BEHIND) {
-						this.virtual.handleBehind(offset);
+						this.virtual.handleBehind(offset, force);
+					}else if(force){
+						this.virtual.handleOffset(offset);
 					}
-
 				})
 			},
 
 			installObserver: function() {
 
 				this.frontObserver = this.createObserver(".front-observer", (res) => {
-					console.log('front observer', res);
+					// console.log('front observer', res);
 					if (this.range.start === 0) return;
 
 					if (res.intersectionRatio > 0 || res.intersectionRect.width > 0) {
@@ -160,7 +166,7 @@
 				});
 
 				this.behindObserver = this.createObserver(".behind-observer", (res) => {
-					console.log('behind observer', res);
+					// console.log('behind observer', res);
 					if (this.range.end === this.uniqueIds.length - 1) return;
 
 					if (res.intersectionRatio > 0 || res.intersectionRect.width > 0) {
@@ -184,7 +190,6 @@
 			destoryObserver: function() {
 				this.disconnectObserver(this.frontObserver);
 				this.disconnectObserver(this.behindObserver);
-				console.log(this.frontObserver, this.behindObserver);
 				delete this.frontObserver;
 				delete this.behindObserver;
 			},

@@ -17,7 +17,11 @@ function getMockNews(num = 20, count = 1) {
 			
 		});
 
-	return result;
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			resolve(result)
+		}, 500)
+	});
 }
 
 export {
