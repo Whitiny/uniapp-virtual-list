@@ -11,7 +11,7 @@
 <script>
 import Virtual from './virtual.js';
 
-import { throttle } from '../../libs/util.js';
+import { sleep, throttle } from '../../libs/util.js';
 
 const OBSERVER_STATUS = {
 	NONE: 'NONE',
@@ -61,7 +61,7 @@ export default {
 	},
 	computed: {
 		listId() {
-			return `list${this.componentId}`
+			return `list${this.componentId}`;
 		},
 		frontObserverId() {
 			return `front-observer${this.componentId}`;
@@ -117,7 +117,11 @@ export default {
 
 		this.installVirtual();
 	},
-	mounted: function() {
+	mounted: async function() {
+		// #ifdef MP-BAIDU
+		await sleep(100);
+		// #endif
+		
 		// #ifdef MP-ALIPAY
 		this.listQuery = uni.createSelectorQuery().select('#' + this.listId);
 		// #endif
@@ -182,6 +186,7 @@ export default {
 
 		installObserver: function() {
 			this.frontObserver = this.createObserver('#' + this.frontObserverId, res => {
+				// console.log(this.frontObserverId, res);
 				if (this.range.start === 0) return;
 
 				if (res.intersectionRatio > 0 || res.intersectionRect.width > 0) {
@@ -194,6 +199,7 @@ export default {
 			});
 
 			this.behindObserver = this.createObserver('#' + this.behindObserverId, res => {
+				// console.log(this.behindObserverId, res);
 				if (this.range.end === this.uniqueIds.length - 1) return;
 
 				if (res.intersectionRatio > 0 || res.intersectionRect.width > 0) {

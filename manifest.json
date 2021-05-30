@@ -60,12 +60,16 @@
         "usingComponents" : true
     },
     "mp-baidu" : {
-        "usingComponents" : true
+        "usingComponents" : true,
+        "appid" : "17767960"
     },
     "mp-toutiao" : {
         "usingComponents" : true
     },
     "uniStatistics" : {
         "enable" : false
+    },
+    "mp-qq" : {
+        "appid" : "1111814243"
     }
 }
