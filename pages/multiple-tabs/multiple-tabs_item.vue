@@ -13,13 +13,11 @@
 		@down="downCallback"
 		:up="upOption"
 		@up="upCallback"
-		@emptyclick="emptyClick"
 	>
 		<!-- 数据列表 -->
-		<baizc-virtual-list :ref="'vsl' + i" :uniqueIds="uniqueIds" @change="onRangeChange">
-			<view :style="{ padding: `${range.padFront}px 0 ${range.padBehind}px` }">
-				<virtual-list-item v-for="item in visibleList" :uid="item.id" :index="item.no" :key="item.id" @size="onEmitSize">
-					
+		<baizc-virtual-list :ref="'virtualList' + i" :componentId="i" :uniqueIds="uniqueIds" @change="onRangeChange">
+			<view :style="{ padding: vRange.padStyle }">
+				<virtual-list-item v-for="item in visibleList" :uid="item.id" :key="item.id" @size="onEmitSize">
 					<view style="padding: 7px 30rpx;">
 						<view class="bg-white flex align-center padding" style="border-radius: 6px;">
 							<image
@@ -36,7 +34,6 @@
 							</view>
 						</view>
 					</view>
-					
 				</virtual-list-item>
 			</view>
 		</baizc-virtual-list>
@@ -44,12 +41,16 @@
 </template>
 
 <script>
+import virtualListMixin from '@/uni_modules/baizc-virtual-list/mixins/virtual-list.js';
+
 import MescrollMixin from '@/uni_modules/mescroll-uni/components/mescroll-uni/mescroll-mixins.js';
 import MescrollMoreItemMixin from '@/uni_modules/mescroll-uni/components/mescroll-uni/mixins/mescroll-more-item.js';
+
+import {_ref} from '@/uni_modules/baizc-virtual-list/libs/util.js';
 import { getMockNews } from '@/common/mock.js';
 
 export default {
-	mixins: [MescrollMixin, MescrollMoreItemMixin], // 注意此处还需使用MescrollMoreItemMixin (必须写在MescrollMixin后面)
+	mixins: [MescrollMixin, MescrollMoreItemMixin, virtualListMixin], // 注意此处还需使用MescrollMoreItemMixin (必须写在MescrollMixin后面)
 	props: {
 		i: Number, // 每个tab页的专属下标 (除了支付宝小程序必须在这里定义, 其他平台都可不用写, 因为已在MescrollMoreItemMixin定义)
 		index: {
@@ -77,23 +78,8 @@ export default {
 					tip: '~ 空空如也 ~', // 提示
 					btnText: '去看看'
 				}
-			},
-			dataSources: [], //列表数据
-			range: {
-				start: 0,
-				end: 0,
-				padFront: 0,
-				padBehind: 0
 			}
 		};
-	},
-	computed: {
-		uniqueIds() {
-			return this.dataSources.map(item => item.id);
-		},
-		visibleList() {
-			return this.dataSources.slice(this.range.start, this.range.end + 1);
-		}
 	},
 	methods: {
 		/*下拉刷新的回调 */
@@ -115,17 +101,9 @@ export default {
 					this.mescroll.endErr();
 				});
 		},
-		//点击空布局按钮的回调
-		emptyClick() {
-			uni.showToast({
-				title: '点击了按钮,具体逻辑自行实现'
-			});
-		},
-		onRangeChange: function(range) {
-			Object.assign(this.range, range);
-		},
-		onEmitSize: function(uid, size) {
-			this.$refs['vsl' + this.i].saveSize(uid, size);
+		onEmitSize: function(data) {
+			let vsl = _ref(this.$refs, `virtualList${this.i}`);
+			if(vsl) vsl.saveSize(data);
 		}
 	}
 };

@@ -79,7 +79,6 @@ export default class Virtual {
 	}
 
 	calcOverAccumulate(offset) {
-
 		// 当前滚动位置未缓存，继续累加计算 offset
 		let i, size, offsetAcc;
 
@@ -90,7 +89,7 @@ export default class Virtual {
 			size = this.sizes.get(this.param.uniqueIds[i]);
 			if (typeof size !== 'number') size = this.getEstimateSize();
 			offsetAcc = parseFloat((offsetAcc + size).toFixed(3));
-
+			// console.log('calc offset cache', i, this.param.uniqueIds[i], size, offsetAcc);
 			this.sizeAccCache[i + 1] = offsetAcc;
 
 			if (offsetAcc >= offset) {
@@ -100,19 +99,6 @@ export default class Virtual {
 		}
 	}
 
-	getRangeOffset(start, end) {
-		let offset = 0,
-			size, i;
-
-		for (i = start; i < end; i++) {
-			size = this.sizes.get(this.param.uniqueIds[i]);
-			if (typeof size !== 'number') size = this.getEstimateSize();
-			offset += size;
-		}
-
-		return offset;
-	}
-
 	/**
 	 * @param {Number} giveIndex
 	 * @return {Number} 从 0 到 giveIndex（不包括）的 size 之和
@@ -120,19 +106,33 @@ export default class Virtual {
 	getIndexOffset(giveIndex) {
 		if (!giveIndex) return 0;
 
-		let offset = 0,
-			size, i;
+		if (this.cacheIndex >= giveIndex) return this.sizeAccCache[giveIndex];
 
-		for (i = 0; i < giveIndex; i++) {
+		let i, size, offset, offsetAcc;
+		
+		offset = 0;
+		i = this.cacheIndex + 1;
+		offsetAcc = this.sizeAccCache[i];
+
+		for (; i < giveIndex + 1 && i < this.param.uniqueIds.length; i ++) {
 			size = this.sizes.get(this.param.uniqueIds[i]);
 			if (typeof size !== 'number') size = this.getEstimateSize();
-			offset += size;
+			offsetAcc = parseFloat((offsetAcc + size).toFixed(3));
+
+			this.sizeAccCache[i + 1] = offsetAcc;
 		}
+		this.cacheIndex = i - 1;
+
+		// for (i = 0; i < giveIndex; i++) {
+		// 	size = this.sizes.get(this.param.uniqueIds[i]);
+		// 	if (typeof size !== 'number') size = this.getEstimateSize();
+		// 	offset += size;
+		// }
 		// console.log(giveIndex, offset, test);
 		this.hasOverIndex = Math.max(this.hasOverIndex, giveIndex);
 		this.hasOverIndex = Math.min(this.hasOverIndex, this.getLastIndex());
 
-		return offset;
+		return offsetAcc;
 	}
 
 	getEstimateSize() {
@@ -140,17 +140,20 @@ export default class Virtual {
 	}
 
 	saveSize({
-		index,
+		// index,
 		uid,
 		size
 	}) {
+		// console.log('virtual save size', uid, size);
 		if (typeof size !== 'number' || size <= 0) return; // 快速滚动时，未能获取到真实高度，可能出现返回 0 的情况，应排除
 
 		size = parseFloat(size.toFixed(3));
 		if (size === this.sizes.get(uid)) return; // 同上次挂载大小无变化
-
+		
 		this.sizes.set(uid, size);
-		if (index <= this.cacheIndex) this.cacheIndex = index - 1; // 清除失效缓存
+		// if (index <= this.cacheIndex) this.cacheIndex = index - 1; // 清除失效缓存
+		let index = this.param.uniqueIds.indexOf(uid);
+		if (index !== -1 && index <= this.cacheIndex) this.cacheIndex = index - 1;
 
 		// 首先假定列表每一项尺寸（高度|宽度）是一样的
 		// 若之后有列表项与之前项尺寸不一致，标记为动态尺寸列表
@@ -192,31 +195,30 @@ export default class Virtual {
 	// 	this.updateRange(this.range.start, this.getEndByStart(this.range.start))
 	// }
 
-	handleFront(offset, force = false) {
+	handleFront(offset, force) {
 		offset += this.param.windowSize;
 		// 避免触发频繁导致冗余计算
-		if (this.lastCalcOffset === offset && !force) return;
-		this.handleOffset(offset, 'front');
+		this.handleOffset(offset, 'front', force);
 	}
 
-	handleBehind(offset, force = false) {
+	handleBehind(offset, force) {
 		// 避免触发频繁导致冗余计算
-		if (this.lastCalcOffset === offset && !force) return;
-		this.handleOffset(offset, 'behind');
+		this.handleOffset(offset, 'behind', force);
 	}
 
-	handleOffset(offset, direction) {
+	handleOffset(offset, direction, force) {
+		if (this.lastCalcOffset === offset && !force) return;
+
 		this.lastCalcOffset = offset;
 
 		// 缓存数量，用于最后确定 start 数值时，计算 padFront
 		// 往前滚动 offset 计算以视口底部为准，往前加载 2 个 buffer 数量
 		// 往后滚动 offset 计算以视口顶部为准，往前加载 1 个 buffer 数量
 		let bufferNum = direction === 'front' ? (2 * this.param.buffer) : this.param.buffer,
-			// let bufferNum = this.param.buffer,
 			overs = this.getScrollOvers(offset); // 当前视口顶部项的下标
 
 		const start = Math.max(overs - bufferNum, 0);
-
+		// console.log('handle offset', offset, overs, start, this.sizeAccCache, this.sizes);
 		this.checkRange(start, this.getEndByStart(start));
 	}
 

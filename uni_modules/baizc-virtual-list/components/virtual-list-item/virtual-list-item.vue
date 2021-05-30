@@ -5,29 +5,18 @@
 </template>
 
 <script>
+	import { sleep } from '../../libs/util.js';
+	
 	export default {
 		name: 'virtual-list-item',
 		props: {
 			uid: {
+				required: true,
 				type: [Number, String],
-				default: 'uid'
-			},
-			direction: {
-				type: String,
-				default: 'vertical'
-			},
-			index: {
-				type: [Number],
-				default: -1
 			},
 			willRise: {
 				type: Boolean,
 				default: false
-			}
-		},
-		computed: {
-			isVertical() {
-				return this.direction === 'vertical';
 			}
 		},
 		mounted: function() {
@@ -37,15 +26,24 @@
 			if (this.willRise) this.dispatchSizeChange();
 		},
 		methods: {
-			dispatchSizeChange: function() {
-				uni.createSelectorQuery().in(this).select(`#${this.uid}`).fields({
+			dispatchSizeChange: async function() {
+				// #ifdef APP-PLUS
+				await sleep(100);
+				// #endif
+				
+				// #ifdef MP-ALIPAY
+				let query = uni.createSelectorQuery().select(`#${this.uid}`);
+				// #endif
+				// #ifndef MP-ALIPAY
+				let query = uni.createSelectorQuery().in(this).select(`#${this.uid}`);
+				// #endif
+				
+				query.fields({
 					size: true
 				}, (res) => {
-					let size = this.isVertical ? res.height : res.width;
 					this.$emit("size", {
-						index: this.index,
 						uid: this.uid,
-						size: size
+						...res
 					});
 				}).exec()
 			}

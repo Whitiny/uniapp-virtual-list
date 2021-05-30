@@ -3,15 +3,27 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "uni-app"
+				"enablePullDownRefresh": false,
+				"app-plus": {
+					"bounce":"none"
+				},
+				"mp-alipay": {
+					"allowsBounceVertical":"NO"
+				}
 			}
 		}
 	    ,{
             "path" : "pages/fixed-size/fixed-size",
             "style" :                                                                                    
             {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false
+				"navigationBarTitleText": "固定高度列表",
+                "enablePullDownRefresh": false,
+				"app-plus": {
+					"bounce":"none"
+				},
+				"mp-alipay": {
+					"allowsBounceVertical":"NO"
+				}
             }
             
         }
@@ -19,16 +31,52 @@
             "path" : "pages/multiple-tabs/multiple-tabs",
             "style" :                                                                                    
             {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false
+				"navigationBarTitleText": "多选项卡列表",
+                "enablePullDownRefresh": false,
+				"app-plus": {
+					"bounce":"none"
+				},
+				"mp-alipay": {
+					"allowsBounceVertical":"NO"
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/dynamic-size/dynamic-size",
+            "style" :                                                                                    
+            {
+				"navigationBarTitleText": "动态高度列表",
+                "enablePullDownRefresh": false,
+				"app-plus": {
+					"bounce":"none"
+				},
+				"mp-alipay": {
+					"allowsBounceVertical":"NO"
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/horizontal/horizontal",
+            "style" :                                                                                    
+            {
+				"navigationBarTitleText": "横向列表",
+                "enablePullDownRefresh": false,
+				"app-plus": {
+					"bounce":"none"
+				},
+				"mp-alipay": {
+					"allowsBounceVertical":"NO"
+				}
             }
             
         }
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "uni-app",
-		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8"
+		"navigationBarTitleText": "虚拟列表",
+		"navigationBarBackgroundColor": "#FFFFFF",
+		"backgroundColor": "#FFFFFF"
 	}
 }

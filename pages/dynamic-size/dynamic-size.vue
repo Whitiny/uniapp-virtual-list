@@ -9,7 +9,7 @@
 						:key="item.id"
 						@size="onEmitSize"
 					>
-						<view style="padding: 7px 30rpx;">
+						<view v-if="item.type === 'small'" style="padding: 7px 30rpx;">
 							<view class="bg-white flex align-center padding" style="border-radius: 6px;">
 								<image
 									:src="item.image"
@@ -25,6 +25,37 @@
 								</view>
 							</view>
 						</view>
+
+						<view v-else style="padding: 7px 30rpx;">
+							<view class="bg-white solid-bottom padding" style="border-radius: 6px;">
+								<view class="" style="display: flex; flex-direction: column;">
+									<view class="text-cut-2" style="margin-bottom: 5px; font-size: 32rpx; font-weight: bold;">
+										{{ item.no }}、{{ item.title }}
+									</view>
+								</view>
+								<view class="flex align-center flex-between">
+									<image
+										:src="item.image"
+										mode=""
+										class="margin-right-sm"
+										style="width: 70px; height: 65px; flex: 1;"
+									></image>
+									<image
+										:src="item.image"
+										mode="aspectFill"
+										class="margin-right-sm"
+										style="width: 70px; height: 65px; flex: 1;"
+									></image>
+									<image
+										:src="item.image"
+										mode="aspectFill"
+										class=""
+										style="width: 70px; height: 65px; flex: 1;"
+									></image>
+								</view>
+								<view class="margin-top-xs">{{ item.passtime }}</view>
+							</view>
+						</view>
 					</virtual-list-item>
 				</view>
 			</baizc-virtual-list>
@@ -33,7 +64,6 @@
 </template>
 
 <script>
-import newsItem from '@/components/news-item/news-item.vue';
 import mescrollUni from '@/uni_modules/mescroll-uni/components/mescroll-uni/mescroll-uni.vue';
 
 import virtualListMixin from '@/uni_modules/baizc-virtual-list/mixins/virtual-list.js';
@@ -47,17 +77,18 @@ export default {
 	},
 	mixins: [mescrollMixin, virtualListMixin],
 	data() {
-		return {};
+		return {
+		};
 	},
 	onLoad: function() {
-		getMockNews(10000)
-			.then(res => {
-				this.dataSources.push(...res);
-				this.mescroll.endSuccess(res.length, false);
-			})
-			.catch(err => {
-				this.mescroll.endErr();
-			});
+		getMockNews(10000).then(res => {
+			this.dataSources.push(...res)
+			this.mescroll.endSuccess(res.length, false)
+		}).catch(err => {
+			this.mescroll.endErr();
+		})
+	},
+	methods: {
 	}
 };
 </script>
