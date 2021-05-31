@@ -1,6 +1,4 @@
-import {
-	_ref
-} from '@/uni_modules/baizc-virtual-list/libs/util.js';
+import {_ref} from '@/uni_modules/baizc-virtual-list/libs/util.js';
 
 export default {
 	data() {
@@ -28,9 +26,8 @@ export default {
 			Object.assign(this.vRange, vRange);
 		},
 		onEmitSize: function(data) {
-			// 支付宝小程序中 模板上 ref 如果是嵌套的，$refs 获取到的结果也是嵌套的，需要自行递归去获取
-			let vsl =  _ref(this.$refs, 'virtualList');
-			if(vsl) vsl.saveSize(data);
+			let vsl = _ref(this.$refs, `virtualList${this.i}`);
+			if (vsl) vsl.saveSize(data);
 		}
 	}
 }

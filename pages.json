@@ -38,6 +38,9 @@
 				},
 				"mp-alipay": {
 					"allowsBounceVertical":"NO"
+				},
+				"mp-toutiao": {
+					"enablePullDownRefresh": true
 				}
             }
             

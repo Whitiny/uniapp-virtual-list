@@ -1,12 +1,14 @@
 {
   "id": "baizc-virtual-list",
-  "displayName": "baizc-virtual-list",
+  "displayName": "【虚拟列表】数万条数据长列表流畅滚动",
   "version": "1.0.0",
-  "description": "baizc-virtual-list",
+  "description": "支持 easycom，基于 IntersectionObserver API，可搭配 mescroll 等任意 scroll-view 组件使用",
   "keywords": [
-    "baizc-virtual-list"
+    "虚拟列表",
+	"长列表",
+	"virtual-list"
 ],
-  "repository": "",
+  "repository": "https://github.com/Whitiny/uniapp-virtual-list.git",
   "engines": {
     "HBuilderX": "^3.1.0"
   },
@@ -24,12 +26,12 @@
       }
     },
     "contact": {
-      "qq": ""
+      "qq": "729447655"
     },
     "declaration": {
-      "ads": "",
-      "data": "",
-      "permissions": ""
+      "ads": "无",
+      "data": "插件不采集任何数据",
+      "permissions": "无"
     },
     "npmurl": ""
   },
@@ -43,28 +45,28 @@
       },
       "client": {
         "App": {
-          "app-vue": "u",
+          "app-vue": "y",
           "app-nvue": "u"
         },
         "H5-mobile": {
-          "Safari": "u",
-          "Android Browser": "u",
-          "微信浏览器(Android)": "u",
-          "QQ浏览器(Android)": "u"
+          "Safari": "y",
+          "Android Browser": "y",
+          "微信浏览器(Android)": "y",
+          "QQ浏览器(Android)": "y"
         },
         "H5-pc": {
-          "Chrome": "u",
-          "IE": "u",
-          "Edge": "u",
-          "Firefox": "u",
-          "Safari": "u"
+          "Chrome": "y",
+          "IE": "y",
+          "Edge": "y",
+          "Firefox": "y",
+          "Safari": "y"
         },
         "小程序": {
-          "微信": "u",
-          "阿里": "u",
-          "百度": "u",
-          "字节跳动": "u",
-          "QQ": "u"
+          "微信": "y",
+          "阿里": "y",
+          "百度": "n",
+          "字节跳动": "y",
+          "QQ": "y"
         },
         "快应用": {
           "华为": "u",

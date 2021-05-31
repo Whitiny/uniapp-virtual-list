@@ -167,7 +167,7 @@
 				box-sizing: border-box;
 				&.active{
 					font-weight: bold;
-					color: red;
+					color: #027aff;
 				}
 			}
 		}
@@ -196,7 +196,7 @@
 			transform: translateX(-50%);
 			border-radius: 4rpx;
 			transition: left .3s;
-			background: red;
+			background: #027aff;
 		}
 	}
 </style>

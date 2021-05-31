@@ -19,28 +19,26 @@ const OBSERVER_STATUS = {
 	BEHIND: 'BEHIND'
 };
 
+/**
+ * @property {Array} uniqueIds 数据源所有项的id集合
+ * @property {Number} keeps 实际渲染的数据条数，应大于三个屏幕高度/宽度
+ * @property {Number} estimateSize 估计列表项的平均大小，用于估算未渲染部分的占位padding
+ * @property {String} direction = [vertical|horizontal] 声明列表横向还是纵向
+ * @property {String,Number} componentId 同个页面有多个列表时，确保id唯一，避免部分小程序中无法正确获取dom、挂载observer 
+ * @property {Object} margin IntersectionObserver参数，用来扩展或收缩监测区域，一般用不到
+ * @example <baizc-virtual-list ref="virtualList" :uniqueIds="uniqueIds" @change="onRangeChange"></baizc-virtual-list>
+ */
 export default {
 	name: 'baizc-virtual-list',
-	components: {},
 	props: {
 		margin: {
 			type: Object,
 			default: () => ({
-				top: 0,
-				bottom: 0
 			})
 		},
 		uniqueIds: {
 			type: Array,
 			default: () => []
-		},
-		uidKey: {
-			type: String,
-			default: 'id'
-		},
-		indexKey: {
-			type: String,
-			default: 'index'
 		},
 		keeps: {
 			type: Number,
@@ -186,7 +184,6 @@ export default {
 
 		installObserver: function() {
 			this.frontObserver = this.createObserver('#' + this.frontObserverId, res => {
-				// console.log(this.frontObserverId, res);
 				if (this.range.start === 0) return;
 
 				if (res.intersectionRatio > 0 || res.intersectionRect.width > 0) {
@@ -199,7 +196,6 @@ export default {
 			});
 
 			this.behindObserver = this.createObserver('#' + this.behindObserverId, res => {
-				// console.log(this.behindObserverId, res);
 				if (this.range.end === this.uniqueIds.length - 1) return;
 
 				if (res.intersectionRatio > 0 || res.intersectionRect.width > 0) {
@@ -247,9 +243,18 @@ export default {
 				this.throttleChecker();
 			}
 		},
+		
+		getOffsetByIndex: function(index) {
+			return this.virtual.getIndexOffset(index);
+		},
+		
+		getOffsetById: function(id) {
+			let index = this.uniqueIds.indexOf(id);
+			if(index < 0) return -1;
+			return this.virtual.getIndexOffset(index);
+		},
 
 		saveSize: function(data) {
-			// console.log('bazc-list save size', data);
 			let { uid, width, height } = data;
 			let size = this.isVertical ? height : width;
 			this.virtual.saveSize({
