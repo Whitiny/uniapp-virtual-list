@@ -1,6 +1,17 @@
-import {_ref} from '@/uni_modules/baizc-virtual-list/libs/util.js';
+import {
+	_ref
+} from '@/uni_modules/baizc-virtual-list/libs/util.js';
 
 export default {
+	props: {
+		i: Number,
+		index: {
+			type: Number,
+			default () {
+				return 0;
+			}
+		},
+	},
 	data() {
 		return {
 			dataSources: [],

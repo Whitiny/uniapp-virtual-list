@@ -1,11 +1,11 @@
 {
   "id": "baizc-virtual-list",
-  "displayName": "【虚拟列表】数万条数据长列表流畅滚动",
+  "displayName": "【虚拟列表】实现上万条数据流畅滚动",
   "version": "1.0.0",
   "description": "支持 easycom，基于 IntersectionObserver API，可搭配 mescroll 等任意 scroll-view 组件使用",
   "keywords": [
     "虚拟列表",
-	"长列表",
+	"长列表优化",
 	"virtual-list"
 ],
   "repository": "https://github.com/Whitiny/uniapp-virtual-list.git",
