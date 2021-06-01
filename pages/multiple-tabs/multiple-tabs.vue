@@ -30,12 +30,14 @@
 			this.height = uni.getSystemInfoSync().windowHeight - uni.upx2px(80) + 'px'
 		},
 		onPullDownRefresh: function() {
-			// #ifdef MP-TOUTIAO
+			// #ifdef MP-TOUTIAO || MP-ALIPAY
 			let ref = this.$refs['mescrollItem' + this.tabIndex];
 			if (ref.length === 0) return;
 			ref = ref[0];
 			if (ref && ref.refresh) {
 				ref.refresh().then(() => uni.stopPullDownRefresh());
+			}else {
+				uni.stopPullDownRefresh()
 			}
 			// #endif
 		},

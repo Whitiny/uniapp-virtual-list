@@ -47,7 +47,7 @@
 |属性|类型|默认值|说明|
 |--	|--	|--	|--	|
 |uniqueIds |Array |[]	|数据源所有项的id集合	|
-|keeps |Number |30	|实际渲染的数据条数，最好大于三个屏幕的高度/宽度	|
+|keeps |Number |60	|实际渲染的数据条数	|
 |estimateSize |Number |80	|估计的列表项平均大小，用于估算未渲染部分的占位 padding	|
 |direction |String	|vertical	|声明列表横向还是纵向，可选值：vertical、horizontal	|
 |componentId |String,Number	|''	|同个页面有多个列表时，确保id唯一，避免部分小程序中无法正确获取 dom、挂载 observer 监听器	|

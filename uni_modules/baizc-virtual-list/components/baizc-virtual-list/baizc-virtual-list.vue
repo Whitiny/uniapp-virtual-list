@@ -42,7 +42,7 @@ export default {
 		},
 		keeps: {
 			type: Number,
-			default: 30
+			default: 60
 		},
 		estimateSize: {
 			type: Number,

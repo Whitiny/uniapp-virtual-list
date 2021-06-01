@@ -5,11 +5,12 @@
 	-->
 	<!-- ref动态生成: 字节跳动小程序编辑器不支持一个页面存在相同的ref (如不考虑字节跳动小程序可固定值为 ref="mescrollRef") -->
 	<!-- top的高度等于悬浮菜单tabs的高度 -->
-	<!-- #ifndef MP-TOUTIAO -->
+	<!-- #ifndef  MP-TOUTIAO || MP-ALIPAY -->
 	<mescroll-uni :ref="'mescrollRef' + i" @init="mescrollInit" :height="height" :down="downOption" @down="downCallback"
 		:up="upOption" @up="upCallback">
 		<!-- #endif -->
-		<!-- #ifdef MP-TOUTIAO -->
+
+		<!-- #ifdef  MP-TOUTIAO || MP-ALIPAY -->
 		<scroll-view scroll-y :style="{height: height}" @scrolltolower="getData">
 			<!-- #endif -->
 
@@ -35,13 +36,13 @@
 				</view>
 			</baizc-virtual-list>
 
-			<!-- #ifdef MP-TOUTIAO -->
-			<view class="text-center padding-tb-xs"><text class="cuIcon-loading cuIconfont-spin margin-right-xs"></text>
+			<!-- #ifdef  MP-TOUTIAO || MP-ALIPAY -->
+			<view class="text-center padding-tb-xs" style="color: #808080;"><text class="cuIcon-loading cuIconfont-spin margin-right-xs"></text>
 				加载中...</view>
 		</scroll-view>
 		<!-- #endif -->
 
-		<!-- #ifndef MP-TOUTIAO -->
+		<!-- #ifndef  MP-TOUTIAO || MP-ALIPAY -->
 	</mescroll-uni>
 	<!-- #endif -->
 </template>
@@ -50,16 +51,13 @@
 	import virtualListMixin from '@/uni_modules/baizc-virtual-list/mixins/virtual-list-swiper-item.js';
 
 	import MescrollMixin from '@/uni_modules/mescroll-uni/components/mescroll-uni/mescroll-mixins.js';
-	import MescrollMoreItemMixin from '@/uni_modules/mescroll-uni/components/mescroll-uni/mixins/mescroll-more-item.js';
 
 	import {
 		getMockNews
 	} from '@/common/mock.js';
 
 	export default {
-		mixins: [MescrollMixin, MescrollMoreItemMixin,
-			virtualListMixin
-		], // 注意此处还需使用MescrollMoreItemMixin (必须写在MescrollMixin后面)
+		mixins: [MescrollMixin, virtualListMixin],
 		props: {
 			i: Number, // 每个tab页的专属下标 (除了支付宝小程序必须在这里定义, 其他平台都可不用写, 因为已在MescrollMoreItemMixin定义)
 			index: {
@@ -75,7 +73,7 @@
 			return {
 				// 头条小程序中 mescroll 组件出错，改用原生刷新加载
 				page: {
-					num: 1,
+					num: this.i * 20 + 1,
 					size: 50
 				},
 				downOption: {
@@ -84,7 +82,7 @@
 				upOption: {
 					auto: false, // 不自动加载
 					page: {
-						num: 0, // 当前页码,默认0,回调之前会加1,即callback(page)会从1开始
+						num: this.i * 20, // 当前页码,默认0,回调之前会加1,即callback(page)会从1开始
 						size: 50 // 每页数据的数量
 					},
 					noMoreSize: 4, //如果列表已无数据,可设置列表的总数量要大于半页才显示无更多数据;避免列表数据过少(比如只有一条数据),显示无更多数据会不好看; 默认5
@@ -95,23 +93,17 @@
 				}
 			};
 		},
-		watch: {
-			// #ifdef MP-TOUTIAO
-			index(newVal) {
-				if (newVal === this.i && !this.init) {
-					this.getData();
-					this.init = true;
-				}
-			}
-			// #endif
-		},
 		mounted: function() {
-			// #ifdef MP-TOUTIAO
-			if (this.index === this.i && !this.init) {
-				this.getData();
-				this.init = true;
+			if (this.i === 0) {
+				// #ifdef MP-TOUTIAO || MP-ALIPAY
+				this.refresh();
+				this.isInit = true;
+				// #endif
+			} else {
+				getMockNews(1000 * this.i).then(res => {
+					this.dataSources.push(...res);
+				})
 			}
-			// #endif
 		},
 		methods: {
 			// 头条小程序中 mescroll 组件出错，改用原生刷新加载
@@ -150,6 +142,35 @@
 					.catch(err => {
 						this.mescroll.endErr();
 					});
+			},
+
+			// 以ref的方式初始化mescroll对象 (兼容字节跳动小程序)
+			mescrollInitByRef() {
+				if (!this.mescroll || !this.mescroll.resetUpScroll) {
+					// 字节跳动小程序编辑器不支持一个页面存在相同的ref, 多mescroll的ref需动态生成, 格式为'mescrollRef下标'
+					let mescrollRef = this.$refs.mescrollRef || this.$refs['mescrollRef' + this.i];
+					if (mescrollRef) this.mescroll = mescrollRef.mescroll
+				}
+			},
+			// mescroll组件初始化的回调,可获取到mescroll对象 (覆盖mescroll-mixins.js的mescrollInit, 为了标记isInit)
+			mescrollInit(mescroll) {
+				this.mescroll = mescroll;
+				this.mescrollInitByRef && this.mescrollInitByRef(); // 兼容字节跳动小程序
+				// 自动加载当前tab的数据
+				if (this.i === this.index) {
+					this.mescrollTrigger()
+				}
+			},
+			// 主动触发加载
+			mescrollTrigger() {
+				this.isInit = true; // 标记为true
+				if (this.mescroll) {
+					if (this.mescroll.optDown.use) {
+						this.mescroll.triggerDownScroll();
+					} else {
+						this.mescroll.triggerUpScroll();
+					}
+				}
 			}
 		}
 	};
