@@ -14,7 +14,7 @@ function throttle(fn, delay = 300) {
 function sleep (delay = 300) {
 	return new Promise((resolve) => {
 		setTimeout(() => {
-			resolve(0);
+			resolve();
 		}, delay)
 	})
 }

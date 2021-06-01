@@ -133,6 +133,15 @@ export default class Virtual {
 	getEstimateSize() {
 		return this.isFixedType() ? this.fixedSizeValue : (this.firstRangeAverageSize || this.param.estimateSize);
 	}
+	
+	updateCacheById(uid) {
+		let index = this.param.uniqueIds.indexOf(uid);
+		if (index !== -1 && index <= this.cacheIndex) this.cacheIndex = index - 1;
+	}
+	
+	updateCacheByIndex(index) {
+		if(index <= this.cacheIndex) this.cacheIndex = index - 1;
+	}
 
 	saveSize({
 		// index,
