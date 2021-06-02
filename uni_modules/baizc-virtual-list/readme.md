@@ -57,7 +57,7 @@
 |属性|类型|默认值|说明|
 |--	|--	|--	|--	|
 |uid	|Number,String	|	|列表中数据项的唯一标识，与 uniqueIds 对应	|
-|willRise	|Boolean	|false	|组件默认在 mounted 缓存列表项的大小，设置为 true 时，会在 updated 时也执行缓存。<br> 使用场景，例如：通过 item 上某个字段控制列表项收起/展开，导致列表项大小改变，需要更新缓存，否则后续更新计算会出错。<br> textarea 这种不会触发 updated 生命周期导致的列表项大小改变，需要通过 ref 主动调用组件中 `dispatchSizeChange` 方法更新缓存	|
+|willRise	|Boolean	|false	|组件默认在 mounted 缓存列表项的大小，设置为 true 时，会在 updated 时也触发缓存事件。<br> 使用场景，例如：通过 item 上某个字段控制列表项收起/展开，导致列表项大小改变，需要更新缓存，否则后续更新计算会出错。<br> textarea 这种不会触发 updated 生命周期导致的列表项大小改变，需要通过 ref 主动调用组件中 `dispatchSizeChange` 方法更新缓存	|
 |@size	|Function(Object)	|	|将列表项的 uid、宽度、高度传递出来，进行缓存	|
 
 ### GIF 演示

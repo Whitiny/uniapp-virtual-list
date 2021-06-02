@@ -1,17 +1,13 @@
 <template>
-	<view :class="['list', isVertical ? 'vertical' : 'horizontal']" :id="listId" :style="{ padding: range.padStyle }">
+	<div :class="['list', isVertical ? 'vertical' : 'horizontal']" :id="listId">
 		<view class="front-observer" :id="frontObserverId" :style="{ height: frontObHeight, width: frontObWidth }">
 		</view>
 
-		<template v-for="item in visibleList">
-			<virtual-list-item class="item" :uid="item.id" :key="item.id" @size="saveSize">
-				<slot :item="item"></slot>
-			</virtual-list-item>
-		</template>
+		<slot></slot>
 
 		<view class="behind-observer" :id="behindObserverId" :style="{ height: behindObHeight, width: behindObWidth }">
 		</view>
-	</view>
+	</div>
 </template>
 
 <script>
@@ -44,7 +40,7 @@
 				type: Object,
 				default: () => ({})
 			},
-			dataSources: {
+			uniqueIds: {
 				type: Array,
 				default: () => []
 			},
@@ -96,12 +92,6 @@
 			behindObHeight() {
 				if (this.isVertical) return this.range.padBehind + this.bufferSize + 'px';
 				else return '100%';
-			},
-			uniqueIds() {
-				return this.dataSources.map(item => item.id);
-			},
-			visibleList() {
-				return this.dataSources.slice(this.range.start, this.range.end + 1);
 			}
 		},
 		data() {
@@ -111,8 +101,7 @@
 					start: 0,
 					end: 0,
 					padFront: 0,
-					padBehind: 0,
-					padStyle: ''
+					padBehind: 0
 				}
 			};
 		},
@@ -163,10 +152,6 @@
 					},
 					this.onRangeChange
 				);
-			},
-
-			getUniqueIdFromDataSources: function() {
-				return this.dataSources.map((item) => item.id)
 			},
 
 			getListRect: function() {
@@ -301,12 +286,8 @@
 	}
 
 	.list.horizontal {
-		display: flex;
-	}
-
-	/* .list.horizontal .item {
 		display: inline-block;
-	} */
+	}
 
 	.front-observer,
 	.behind-observer {

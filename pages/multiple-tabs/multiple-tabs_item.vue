@@ -15,25 +15,24 @@
 			<!-- #endif -->
 
 			<!-- 数据列表 -->
-			<baizc-virtual-list :ref="'virtualList' + i" :componentId="i" :uniqueIds="uniqueIds"
-				@change="onRangeChange">
-				<view :style="{ padding: vRange.padStyle }">
-					<virtual-list-item v-for="item in visibleList" :uid="item.id" :key="item.id" @size="onEmitSize">
-						<view style="padding: 7px 30rpx;">
-							<view class="bg-white flex align-center padding" style="border-radius: 6px;">
-								<image :src="item.image" mode="aspectFill" class="margin-right-sm"
-									style="width: 70px; height: 50px; flex: none;"></image>
-								<view class="" style="display: flex; flex-direction: column;">
-									<view class="text-cut-2"
-										style="margin-bottom: 5px; font-size: 32rpx; font-weight: bold;">
-										{{ item.no }}、{{ item.title }}
-									</view>
-									<view class="">{{ item.passtime }}</view>
+			<baizc-virtual-list ref="virtualList" :dataSources="dataSources">
+				<template v-slot:default="{item}">
+					
+					<view style="padding: 7px 30rpx;">
+						<view class="bg-white flex align-center padding" style="border-radius: 6px;">
+							<image :src="item.image" mode="aspectFill" class="margin-right-sm"
+								style="width: 70px; height: 50px; flex: none;"></image>
+							<view class="" style="display: flex; flex-direction: column;">
+								<view class="text-cut-2"
+									style="margin-bottom: 5px; font-size: 32rpx; font-weight: bold;">
+									{{item.no}}、{{item.title}}
 								</view>
+								<view class="">{{item.passtime}}</view>
 							</view>
 						</view>
-					</virtual-list-item>
-				</view>
+					</view>
+					
+				</template>
 			</baizc-virtual-list>
 
 			<!-- #ifdef  MP-TOUTIAO || MP-ALIPAY -->
@@ -48,7 +47,7 @@
 </template>
 
 <script>
-	import virtualListMixin from '@/uni_modules/baizc-virtual-list/mixins/virtual-list-swiper-item.js';
+	// import virtualListMixin from '@/uni_modules/baizc-virtual-list/mixins/virtual-list-swiper-item.js';
 
 	import MescrollMixin from '@/uni_modules/mescroll-uni/components/mescroll-uni/mescroll-mixins.js';
 
@@ -57,7 +56,7 @@
 	} from '@/common/mock.js';
 
 	export default {
-		mixins: [MescrollMixin, virtualListMixin],
+		mixins: [MescrollMixin],
 		props: {
 			i: Number, // 每个tab页的专属下标 (除了支付宝小程序必须在这里定义, 其他平台都可不用写, 因为已在MescrollMoreItemMixin定义)
 			index: {
@@ -71,6 +70,7 @@
 		},
 		data() {
 			return {
+				dataSources: [],
 				// 头条小程序中 mescroll 组件出错，改用原生刷新加载
 				page: {
 					num: this.i * 20 + 1,
