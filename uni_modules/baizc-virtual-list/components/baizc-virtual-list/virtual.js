@@ -110,12 +110,12 @@ export default class Virtual {
 		if (this.cacheIndex >= giveIndex) return this.sizeAccCache[giveIndex];
 
 		let i, size, offset, offsetAcc;
-		
+
 		offset = 0;
 		i = this.cacheIndex + 1;
 		offsetAcc = this.sizeAccCache[i];
 
-		for (; i < giveIndex + 1 && i < this.param.uniqueIds.length; i ++) {
+		for (; i < giveIndex + 1 && i < this.param.uniqueIds.length; i++) {
 			size = this.sizes.get(this.param.uniqueIds[i]);
 			if (typeof size !== 'number') size = this.getEstimateSize();
 			offsetAcc = parseFloat((offsetAcc + size).toFixed(3));
@@ -133,18 +133,53 @@ export default class Virtual {
 	getEstimateSize() {
 		return this.isFixedType() ? this.fixedSizeValue : (this.firstRangeAverageSize || this.param.estimateSize);
 	}
-	
+
 	updateCacheById(uid) {
 		let index = this.param.uniqueIds.indexOf(uid);
 		if (index !== -1 && index <= this.cacheIndex) this.cacheIndex = index - 1;
 	}
-	
+
 	updateCacheByIndex(index) {
-		if(index <= this.cacheIndex) this.cacheIndex = index - 1;
+		if (index <= this.cacheIndex) this.cacheIndex = index - 1;
+	}
+
+	/**
+	 * 
+	 * @param {Object} start
+	 * @param {Object} end
+	 * @param {Object} callback
+	 */
+	updateMountedTrigger(start, end, callback) {
+		this.mountedTrigger = {
+			start,
+			end,
+			callback,
+			count: end - start + 1,
+			mountedSet: new Set()
+		}
+	}
+
+	checkMountedTrigger(index) {
+		if (!this.mountedTrigger || this.mountedTrigger.mountedSet.has(index)) return;
+
+		let {
+			start,
+			end,
+			callback,
+			count,
+			mountedSet
+		} = this.mountedTrigger;
+
+		if (start <= index && index <= end) mountedSet.add(index);
+
+		if( mountedSet.size === count) {
+			callback(this.getIndexOffset(end + 1));
+			this.mountedTrigger = null;
+		}
 	}
 
 	saveSize({
-		// index,
+		index,
 		uid,
 		size
 	}) {
@@ -152,11 +187,12 @@ export default class Virtual {
 
 		size = parseFloat(size.toFixed(3));
 		if (size === this.sizes.get(uid)) return; // 同上次挂载大小无变化
-		
+
 		this.sizes.set(uid, size);
-		// if (index <= this.cacheIndex) this.cacheIndex = index - 1; // 清除失效缓存
-		let index = this.param.uniqueIds.indexOf(uid);
-		if (index !== -1 && index <= this.cacheIndex) this.cacheIndex = index - 1;
+
+		if (index <= this.cacheIndex) this.cacheIndex = index - 1; // 清除失效缓存
+
+		this.checkMountedTrigger(index); // 
 
 		// 首先假定列表每一项尺寸（高度|宽度）是一样的
 		// 若之后有列表项与之前项尺寸不一致，标记为动态尺寸列表

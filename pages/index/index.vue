@@ -37,6 +37,10 @@ export default {
 					url: '/pages/horizontal/horizontal'
 				},
 				{
+					title: '反向列表',
+					url: '/pages/reverse/reverse'
+				},
+				{
 					title: '多选项卡',
 					url: '/pages/multiple-tabs/multiple-tabs'
 				}

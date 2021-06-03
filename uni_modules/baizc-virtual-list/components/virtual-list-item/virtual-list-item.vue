@@ -21,6 +21,9 @@
 				required: true,
 				type: [Number, String],
 			},
+			index: {
+				type: Number,
+			},
 			willRise: {
 				type: Boolean,
 				default: false
@@ -49,6 +52,7 @@
 					size: true
 				}, (res) => {
 					this.$emit("size", {
+						index: this.index,
 						uid: this.uid,
 						...res
 					});

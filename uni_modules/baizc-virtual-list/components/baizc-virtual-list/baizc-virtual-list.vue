@@ -3,8 +3,8 @@
 		<view class="front-observer" :id="frontObserverId" :style="{ height: frontObHeight, width: frontObWidth }">
 		</view>
 
-		<template v-for="item in visibleList">
-			<virtual-list-item class="item" :uid="item.id" :key="item.id" @size="saveSize">
+		<template v-for="(item, index) in visibleList">
+			<virtual-list-item class="item" :index="range.start + index" :key="item[uidKey]" :uid="item[uidKey]" :willRise="willRise" @size="saveSize">
 				<slot :item="item"></slot>
 			</virtual-list-item>
 		</template>
@@ -29,7 +29,7 @@
 	};
 
 	/**
-	 * @property {Array} uniqueIds 数据源所有项的id集合
+	 * @property {Array} dataSources 数据源
 	 * @property {Number} keeps 实际渲染的数据条数，应大于三个屏幕高度/宽度
 	 * @property {Number} estimateSize 估计列表项的平均大小，用于估算未渲染部分的占位padding
 	 * @property {String} direction = [vertical|horizontal] 声明列表横向还是纵向
@@ -48,9 +48,13 @@
 				type: Array,
 				default: () => []
 			},
+			uidKey: {
+				type: String,
+				default: 'id'
+			},
 			keeps: {
 				type: Number,
-				default: 60
+				default: 50
 			},
 			estimateSize: {
 				type: Number,
@@ -63,6 +67,10 @@
 			componentId: {
 				type: [String, Number],
 				default: ''
+			},
+			willRise: {
+				type: Boolean,
+				default: false
 			}
 		},
 		computed: {
@@ -98,7 +106,7 @@
 				else return '100%';
 			},
 			uniqueIds() {
-				return this.dataSources.map(item => item.id);
+				return this.dataSources.map(item => item[this.uidKey]);
 			},
 			visibleList() {
 				return this.dataSources.slice(this.range.start, this.range.end + 1);
@@ -163,10 +171,6 @@
 					},
 					this.onRangeChange
 				);
-			},
-
-			getUniqueIdFromDataSources: function() {
-				return this.dataSources.map((item) => item.id)
 			},
 
 			getListRect: function() {
@@ -273,20 +277,37 @@
 				return this.virtual.getIndexOffset(index);
 			},
 
-			getOffsetById: function(id) {
-				let index = this.uniqueIds.indexOf(id);
+			getOffsetById: function(uid) {
+				let index = this.uniqueIds.indexOf(uid);
 				if (index < 0) return -1;
 				return this.virtual.getIndexOffset(index);
+			},
+			
+			afterMountedHeadData: function(size, callback) {
+				this.afterMounted(0, size - 1, callback);
+			},
+			
+			afterMounted: function(start, end, callback){
+				if(start > end) throw `baizc-virtual-list.vue：监测范围异常,start=${start},end=${end}`;
+				if(typeof callback !== 'function') throw 'baizc-virtual-list.vue：无效的回调函数';
+				
+				this.virtual.updateMountedTrigger(start, end, callback);
+			},
+			
+			getSize: function(uid) {
+				return this.virtual.sizes.get(uid);
 			},
 
 			saveSize: function(data) {
 				let {
+					index,
 					uid,
 					width,
 					height
 				} = data;
 				let size = this.isVertical ? height : width;
 				this.virtual.saveSize({
+					index,
 					uid,
 					size
 				});
