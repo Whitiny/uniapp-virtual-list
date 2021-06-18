@@ -1,17 +1,13 @@
 <template>
-	<view :class="['list', isVertical ? 'vertical' : 'horizontal']" :id="listId" :style="{ padding: range.padStyle }">
+	<div :class="['list', isVertical ? 'vertical' : 'horizontal']" :id="listId">
 		<view class="front-observer" :id="frontObserverId" :style="{ height: frontObHeight, width: frontObWidth }">
 		</view>
 
-		<template v-for="(item, index) in visibleList">
-			<virtual-list-item class="item" :index="range.start + index" :key="item[uidKey]" :uid="item[uidKey]" :willRise="willRise" @size="saveSize">
-				<slot :item="item"></slot>
-			</virtual-list-item>
-		</template>
+		<slot></slot>
 
 		<view class="behind-observer" :id="behindObserverId" :style="{ height: behindObHeight, width: behindObWidth }">
 		</view>
-	</view>
+	</div>
 </template>
 
 <script>
@@ -29,12 +25,13 @@
 	};
 
 	/**
-	 * @property {Array} dataSources 数据源
+	 * @property {Array} uniqueIds 数据源所有项的id集合
 	 * @property {Number} keeps 实际渲染的数据条数，应大于三个屏幕高度/宽度
 	 * @property {Number} estimateSize 估计列表项的平均大小，用于估算未渲染部分的占位padding
 	 * @property {String} direction = [vertical|horizontal] 声明列表横向还是纵向
 	 * @property {String,Number} componentId 同个页面有多个列表时，确保id唯一，避免部分小程序中无法正确获取dom、挂载observer 
 	 * @property {Object} margin IntersectionObserver参数，用来扩展或收缩监测区域，一般用不到
+	 * @event {Function(range)} change 通知需要更新渲染的数组下标范围，以及占位 padding 样式
 	 * @example <baizc-virtual-list ref="virtualList" :uniqueIds="uniqueIds" @change="onRangeChange"></baizc-virtual-list>
 	 */
 	export default {
@@ -44,13 +41,9 @@
 				type: Object,
 				default: () => ({})
 			},
-			dataSources: {
+			uniqueIds: {
 				type: Array,
 				default: () => []
-			},
-			uidKey: {
-				type: String,
-				default: 'id'
 			},
 			keeps: {
 				type: Number,
@@ -67,10 +60,6 @@
 			componentId: {
 				type: [String, Number],
 				default: ''
-			},
-			willRise: {
-				type: Boolean,
-				default: false
 			}
 		},
 		computed: {
@@ -104,12 +93,6 @@
 			behindObHeight() {
 				if (this.isVertical) return this.range.padBehind + this.bufferSize + 'px';
 				else return '100%';
-			},
-			uniqueIds() {
-				return this.dataSources.map(item => item[this.uidKey]);
-			},
-			visibleList() {
-				return this.dataSources.slice(this.range.start, this.range.end + 1);
 			}
 		},
 		data() {
@@ -119,8 +102,7 @@
 					start: 0,
 					end: 0,
 					padFront: 0,
-					padBehind: 0,
-					padStyle: ''
+					padBehind: 0
 				}
 			};
 		},
@@ -277,8 +259,8 @@
 				return this.virtual.getIndexOffset(index);
 			},
 
-			getOffsetById: function(uid) {
-				let index = this.uniqueIds.indexOf(uid);
+			getOffsetById: function(id) {
+				let index = this.uniqueIds.indexOf(id);
 				if (index < 0) return -1;
 				return this.virtual.getIndexOffset(index);
 			},
@@ -322,12 +304,8 @@
 	}
 
 	.list.horizontal {
-		display: flex;
-	}
-
-	/* .list.horizontal .item {
 		display: inline-block;
-	} */
+	}
 
 	.front-observer,
 	.behind-observer {
