@@ -3,7 +3,7 @@
 		<mescroll-body ref="mescrollRef" @init="mescrollInit" @down="downCallback" @up="upCallback">
 			<baizc-virtual-list ref="virtualList" :uniqueIds="uniqueIds" @change="onRangeChange">
 				<view :style="{ padding: vRange.padStyle }">
-					<virtual-list-item v-for="item in visibleList" :uid="item.id" :key="item.id" @size="onEmitSize">
+					<virtual-list-item v-for="(item, index) in visibleList" :uid="item.uid" :index="vRange.start + index" :key="item.uid" @size="onEmitSize">
 						<view style="padding: 7px 30rpx;">
 							<view class="bg-white flex align-center padding" style="border-radius: 6px;">
 								<image :src="item.image" mode="aspectFill" class="margin-right-sm"

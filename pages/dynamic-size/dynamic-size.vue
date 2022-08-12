@@ -3,8 +3,8 @@
 		<mescroll-body ref="mescrollRef" @init="mescrollInit" @down="downCallback" @up="upCallback">
 			<baizc-virtual-list ref="virtualList" :uniqueIds="uniqueIds" @change="onRangeChange">
 				<view :style="{ padding: vRange.padStyle }">
-					<virtual-list-item willResize v-for="(item, index) in visibleList" :index="vRange.start + index"
-						:uid="item.id" :key="item.id" @size="onEmitSize">
+					<virtual-list-item willResize v-for="(item, index) in visibleList"  :index="vRange.start + index"
+						:uid="item.uid" :key="item.uid" @size="onEmitSize">
 
 						<view :class="['card-container', item.type]" @tap="changeType(item)">
 							<view class="card padding shadow">

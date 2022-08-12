@@ -4,7 +4,7 @@
 
 			<baizc-virtual-list direction="horizontal" ref="virtualList" :uniqueIds="uniqueIds" @change="onRangeChange">
 				<view class="flex" :style="{padding: vRange.padStyle}">
-					<virtual-list-item v-for="item in visibleList" :uid="item.id" :key="item.id" @size="onEmitSize">
+					<virtual-list-item v-for="(item, index) in visibleList" :uid="item.uid" :index="vRange.start + index" :key="item.uid" @size="onEmitSize">
 					
 						<view style="padding: 7px; width: 120px;">
 							<view class="bg-white flex flex-direction align-center padding-tb-sm"

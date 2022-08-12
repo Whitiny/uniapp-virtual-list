@@ -10,7 +10,7 @@ function getMockNews(num = 20, count = 1) {
 			
 			return {
 				...news[i],
-				id: genUid(),
+				uid: genUid(),
 				no: count++,
 				type: Math.random() > 0.5? 'small' : 'medium'
 			}

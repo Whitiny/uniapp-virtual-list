@@ -35,7 +35,7 @@
 			this.dispatchSizeChange();
 		},
 		updated: function() {
-			console.log('updated', this.index, this.uid);
+			// console.log('updated', this.index, this.uid);
 			if (this.willResize) this.dispatchSizeChange();
 		},
 		methods: {

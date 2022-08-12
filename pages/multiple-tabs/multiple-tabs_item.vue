@@ -17,7 +17,7 @@
 			<!-- 数据列表 -->
 			<baizc-virtual-list :ref="'virtualList' + i" :uniqueIds="uniqueIds" @change="onRangeChange">
 				<view :style="{padding: vRange.padStyle}">
-					<virtual-list-item v-for="item in visibleList" :key="item.id" :uid="item.id" @size="onEmitSize">
+					<virtual-list-item v-for="(item, index) in visibleList" :key="item.uid" :index="vRange.start + index" :uid="item.uid" @size="onEmitSize">
 						
 						<view style="padding: 7px 30rpx;">
 							<view class="bg-white flex align-center padding" style="border-radius: 6px;">

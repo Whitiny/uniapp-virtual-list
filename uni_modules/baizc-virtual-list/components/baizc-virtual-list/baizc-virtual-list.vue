@@ -11,7 +11,7 @@
 </template>
 
 <script>
-	import Virtual from './virtual.js';
+	import Virtual from './Virtual.js';
 
 	import {
 		sleep,
@@ -263,17 +263,6 @@
 				let index = this.uniqueIds.indexOf(id);
 				if (index < 0) return -1;
 				return this.virtual.getIndexOffset(index);
-			},
-			
-			afterMountedHeadData: function(size, callback) {
-				this.afterMounted(0, size - 1, callback);
-			},
-			
-			afterMounted: function(start, end, callback){
-				if(start > end) throw `baizc-virtual-list.vue：监测范围异常,start=${start},end=${end}`;
-				if(typeof callback !== 'function') throw 'baizc-virtual-list.vue：无效的回调函数';
-				
-				this.virtual.updateMountedTrigger(start, end, callback);
 			},
 			
 			getSize: function(uid) {

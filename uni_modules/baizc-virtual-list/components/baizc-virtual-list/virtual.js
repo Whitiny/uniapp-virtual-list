@@ -18,7 +18,7 @@ export default class Virtual {
 		this.sizes = new Map(); // 单项缓存
 		this.sizeAccCache = [0]; // 累加缓存
 		this.cacheIndex = -1;
-		
+
 		this.mountedTrigger = null;
 
 		this.sizeRangeCache = [];
@@ -91,7 +91,11 @@ export default class Virtual {
 
 		for (; i < this.param.uniqueIds.length; i++) {
 			size = this.sizes.get(this.param.uniqueIds[i]);
-			if (typeof size !== 'number') size = this.getEstimateSize();
+			if (typeof size !== 'number') {
+				size = this.getEstimateSize();
+				
+				this.sizes.set(this.param.uniqueIds[i], size);
+			}
 			offsetAcc = parseFloat((offsetAcc + size).toFixed(3));
 			this.sizeAccCache[i + 1] = offsetAcc;
 
@@ -145,40 +149,6 @@ export default class Virtual {
 		if (index <= this.cacheIndex) this.cacheIndex = index - 1;
 	}
 
-	/**
-	 * 
-	 * @param {Object} start
-	 * @param {Object} end
-	 * @param {Object} callback
-	 */
-	updateMountedTrigger(start, end, callback) {
-		this.mountedTrigger = {
-			start,
-			end,
-			callback,
-			count: end - start + 1,
-			mountedSet: new Set()
-		}
-	}
-
-	checkMountedTrigger(index) {
-		if (!this.mountedTrigger || this.mountedTrigger.mountedSet.has(index)) return;
-
-		let {
-			start,
-			end,
-			callback,
-			count,
-			mountedSet
-		} = this.mountedTrigger;
-
-		if (start <= index && index <= end) mountedSet.add(index);
-		if( mountedSet.size === count) {
-			callback(this.getIndexOffset(end + 1));
-			this.mountedTrigger = null;
-		}
-	}
-
 	saveSize({
 		index,
 		uid,
@@ -189,13 +159,11 @@ export default class Virtual {
 
 		size = parseFloat(size.toFixed(3));
 		if (size === this.sizes.get(uid)) return; // 同上次挂载大小无变化
-		
+
 		this.sizes.set(uid, size);
 
-		if(typeof index !== 'number') index = this.param.uniqueIds.indexOf(uid);
+		if (typeof index !== 'number') index = this.param.uniqueIds.indexOf(uid);
 		if (index > -1 && index <= this.cacheIndex) this.cacheIndex = index - 1; // 清除失效缓存
-
-		this.checkMountedTrigger(index); // 
 
 		// 首先假定列表每一项尺寸（高度|宽度）是一样的
 		// 若之后有列表项与之前项尺寸不一致，标记为动态尺寸列表
@@ -243,7 +211,7 @@ export default class Virtual {
 	}
 
 	handleOffset(offset, direction, force) {
-		if (this.lastCalcOffset === offset && !force) return; 		// 避免触发频繁导致冗余计算
+		if (this.lastCalcOffset === offset && !force) return; // 避免触发频繁导致冗余计算
 
 		this.lastCalcOffset = offset;
 
@@ -252,7 +220,7 @@ export default class Virtual {
 		// 往后滚动 offset 计算以视口顶部为准，往前加载 1 个 buffer 数量
 		let bufferNum = direction === 'front' ? (2 * this.param.buffer) : this.param.buffer,
 			overs = this.getScrollOvers(offset); // 当前视口顶部项的下标
-		console.warn('handle',offset, overs, this.sizeAccCache, this.sizes)
+		// console.warn('handle',offset, overs, this.sizeAccCache, this.sizes)
 		const start = Math.max(overs - bufferNum, 0);
 		this.checkRange(start, this.getEndByStart(start));
 	}

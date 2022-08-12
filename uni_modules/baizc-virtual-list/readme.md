@@ -10,7 +10,7 @@
 2. app 端列表项模板不能用组件渲染，否则快速滚动时，会随机触发数据为 undefined 的情况
 2. app 端快速滚动时会报错，但功能正常，猜测应该是数据快速变动，传递不及时，视图层、逻辑层两边不一致导致的
 3. 小程序端列表模板可以用封装组件渲染，但是不应传递对象类型数据，应拆解出需要渲染的字段，一一传递，否则会出现图片闪烁的情况
-4. 对于列表项高度不固定的情况：如果快速的滚动到后面，在往回滚，会出现抖动现象。这是因为前面的列表项高度没有被缓存，padding 是以估算的平均值计算的，实际列表项的高度和平均值的偏差导致了抖动。所以，只要对数据进行分页加载，让每一项都能及时缓存，或者每一项的大小都是一样的，就不会有这个问题。
+4. 对于列表项高度不固定的情况：如果快速的滚动到后面，在往回滚，会出现抖动现象。这是因为前面的列表项来不及渲染高度没有被缓存，padding 是以估算的平均值计算的，实际列表项的高度和平均值的偏差导致了抖动。
 
 ### 使用示例
 ```html
@@ -46,8 +46,8 @@
 |属性|类型|默认值|说明|
 |--	|--	|--	|--	|
 |uniqueIds |Array |[]	|数据源所有项的id集合	|
-|keeps |Number |60	|实际渲染的数据条数	|
-|estimateSize |Number |80	|估计的列表项平均大小，用于估算未渲染部分的占位 padding	|
+|keeps |Number |50	|实际渲染的数据条数	|
+|estimateSize |Number |80	|估计的列表项平均大小，用于估算未渲染部分的占位 padding；不需要精确数值，首屏渲染后，会根据列表项实际大小进行估算	|
 |direction |String	|vertical	|声明列表横向还是纵向，可选值：vertical、horizontal	|
 |componentId |String,Number	|''	|同个页面有多个列表时，确保id唯一，避免部分小程序中无法正确获取 dom、挂载 observer 监听器	|
 |margin |Object |{}	|IntersectionObserver参数，用来扩展或收缩监测区域，一般不需要修改。[IntersectionObserver文档](https://uniapp.dcloud.io/api/ui/intersection-observer?id=intersectionobserver-%e5%af%b9%e8%b1%a1%e7%9a%84%e6%96%b9%e6%b3%95%e5%88%97%e8%a1%a8)	|

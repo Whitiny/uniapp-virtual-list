@@ -26,7 +26,7 @@ export default {
 	},
 	computed: {
 		uniqueIds() {
-			return this.dataSources.map(item => item.id);
+			return this.dataSources.map(item => item.uid);
 		},
 		visibleList() {
 			return this.dataSources.slice(this.vRange.start, this.vRange.end + 1);
